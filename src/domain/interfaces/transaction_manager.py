@@ -1,0 +1,9 @@
+from typing import Protocol
+
+
+class ITransactionManager(Protocol):
+    async def commit(self): ...
+
+    async def rollback(self): ...
+
+    async def close(self): ...

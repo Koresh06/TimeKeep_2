@@ -1,0 +1,2 @@
+class TimeKeepError(Exception):
+    pass
