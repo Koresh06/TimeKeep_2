@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_pass
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Install dependencies
+        run: uv sync --dev
+
+      - name: Run tests
+        env:
+          APP_CONFIG__DB__HOST: localhost
+          APP_CONFIG__DB__PORT: 5432
+          APP_CONFIG__DB__USER: test_user
+          APP_CONFIG__DB__PASSWORD: test_pass
+          APP_CONFIG__DB__NAME: test_db
+          APP_CONFIG__SECURITY__SECRET_KEY: test_secret_key
+        run: uv run pytest tests/ -v
