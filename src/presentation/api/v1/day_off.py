@@ -1,7 +1,7 @@
 from io import BytesIO
 from typing import Annotated
 from dishka.integrations.fastapi import FromDishka, inject
-from fastapi import APIRouter, Body, Depends, status
+from fastapi import APIRouter, Body, Depends, Query, status
 from fastapi.responses import StreamingResponse
 
 from src.application.use_cases.day_off.moderate import ModerateDayOffCommand
@@ -41,7 +41,7 @@ async def create(
             date_=data.date_,
         )
     )
-    return DayOffResponse.model_validate(result.__dict__)
+    return DayOffResponse.model_validate(result, from_attributes=True)
 
 
 @router.get(
@@ -61,7 +61,7 @@ async def get_all_me(
             status=status,
         )
     )
-    return [DayOffResponse.model_validate(day_off.__dict__) for day_off in result]
+    return [DayOffResponse.model_validate(day_off, from_attributes=True) for day_off in result]
 
 
 @router.get(
@@ -81,7 +81,7 @@ async def get_all_by_department(
             status=status,
         )
     )
-    return [DayOffResponse.model_validate(day_off.__dict__) for day_off in result]
+    return [DayOffResponse.model_validate(day_off, from_attributes=True) for day_off in result]
 
 
 @router.get(
@@ -101,7 +101,7 @@ async def get_all_by_organization(
             status=status,
         )
     )
-    return [DayOffResponse.model_validate(day_off.__dict__) for day_off in result]
+    return [DayOffResponse.model_validate(day_off, from_attributes=True) for day_off in result]
 
 
 @router.get(
@@ -120,7 +120,7 @@ async def get_all_by_super_admin(
             status=status,
         )
     )
-    return [DayOffResponse.model_validate(day_off.__dict__) for day_off in result]
+    return [DayOffResponse.model_validate(day_off, from_attributes=True) for day_off in result]
 
 
 @router.patch(
@@ -131,7 +131,7 @@ async def get_all_by_super_admin(
 @inject
 async def moderate(
     id: int,
-    data: Annotated[ModerateDayOff, Body()],
+    data: Annotated[ModerateDayOff, Query()],
     mediator: FromDishka[Mediator],
     current_user: UserTokenData = Depends(get_require_moderator()),
 ) -> None:

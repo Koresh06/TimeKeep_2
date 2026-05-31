@@ -2,9 +2,35 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from src.domain.exceptions.base import TimeKeepError
-from src.domain.exceptions.overtime import AccessDeniedError, OvertimeOverlapError
-from src.domain.exceptions.user import InvalidCredentialsError, UserAlreadyExistsError, UserNotFoundError
-from src.domain.exceptions.day_off import DayOffAccessDeniedError, DayOffAlreadyModeratedError, DayOffNotFoundError, NotEnoughHoursError
+from src.domain.exceptions.user import (
+    InvalidCredentialsError,
+    UserAlreadyExistsError,
+    UserNotFoundError,
+    UserNotModeratorError,
+)
+from src.domain.exceptions.overtime import (
+    AccessDeniedError,
+    OvertimeOverlapError,
+    OvertimeAlreadyUsedError,
+    OvertimeNotFoundError,
+)
+from src.domain.exceptions.day_off import (
+    DayOffAccessDeniedError,
+    DayOffAlreadyModeratedError,
+    NotEnoughHoursError,
+    DayOffNotApprovedError,
+    DayOffNotFoundError,
+    DayOffInvalidDateError,
+    DayOffAlreadyExistsForDateError,
+)
+from src.domain.exceptions.organization import (
+    OrganizationNotFoundError,
+    OrganizationAlreadyExistsError,
+)
+from src.domain.exceptions.department import (
+    DepartmentNotFoundError,
+    DepartmentAlreadyExistsError,
+)
 from src.presentation.exceptions.rate_limit import RateLimitExceededException
 
 
@@ -18,7 +44,18 @@ EXCEPTION_STATUS_MAP = {
     DayOffAccessDeniedError: 403,
     UserNotFoundError: 404,
     DayOffNotFoundError: 404,
+    DayOffInvalidDateError: 400,
+    DayOffAlreadyExistsForDateError: 409,
+    OrganizationNotFoundError: 404,
+    OrganizationAlreadyExistsError: 409,
+    DepartmentNotFoundError: 404,
+    DepartmentAlreadyExistsError: 409,
+    OvertimeNotFoundError: 404,
+    OvertimeAlreadyUsedError: 409,
+    DayOffNotApprovedError: 400,
+    UserNotModeratorError: 403,
 }
+
 
 async def timekeep_exception_handler(
     request: Request,
@@ -29,6 +66,7 @@ async def timekeep_exception_handler(
         status_code=status_code,
         content={"detail": str(exc)},
     )
+
 
 async def rate_limit_exception_handler(
     request: Request,

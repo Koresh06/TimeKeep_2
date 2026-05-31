@@ -1,15 +1,14 @@
 from datetime import date, datetime, time
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from src.domain.enums.overtime_status import OvertimeStatus
 
 
 class OvertimeBase(BaseModel):
-    user_id: int
     date_: date
     start_time: time
-    used_hours: float
+    end_time: time
     description: str
     
 
@@ -24,7 +23,10 @@ class UpdateOvertime(OvertimeBase):
 
 class OvertimeResponse(OvertimeBase):
     id: int
-    end_time: time
+    user_id: int
     status: OvertimeStatus
+    used_hours: float
     created_at: datetime
     updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

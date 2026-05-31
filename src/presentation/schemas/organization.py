@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 class OrganizationBase(BaseModel):
     name: str
+    name_genitive: str
     boss_id: int
 
 

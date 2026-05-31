@@ -39,7 +39,7 @@ async def create(
             user_id=сurrent_user.user_id,
         )
     )
-    return OvertimeResponse.model_validate(result.__dict__)
+    return OvertimeResponse.model_validate(result, from_attributes=True)
 
 
 @router.get(
@@ -60,7 +60,7 @@ async def get_all(
             limit=limit,
         )
     )
-    return [OvertimeResponse.model_validate(overtime.__dict__) for overtime in result]
+    return [OvertimeResponse.model_validate(overtime, from_attributes=True) for overtime in result]
 
 
 @router.get(
@@ -82,7 +82,7 @@ async def get_all_by_organization(
             limit=limit,
         )
     )
-    return [OvertimeResponse.model_validate(overtime.__dict__) for overtime in result]
+    return [OvertimeResponse.model_validate(overtime, from_attributes=True) for overtime in result]
 
 
 @router.get(
@@ -104,7 +104,7 @@ async def get_all_by_department(
             limit=limit,
         )
     )
-    return [OvertimeResponse.model_validate(overtime.__dict__) for overtime in result]
+    return [OvertimeResponse.model_validate(overtime, from_attributes=True) for overtime in result]
 
 
 @router.get(
@@ -126,7 +126,7 @@ async def get_all_me(
             limit=limit,
         )
     )
-    return [OvertimeResponse.model_validate(overtime.__dict__) for overtime in result]
+    return [OvertimeResponse.model_validate(overtime, from_attributes=True) for overtime in result]
 
 
 @router.delete(

@@ -1,6 +1,6 @@
 from typing import Annotated
 from dishka.integrations.fastapi import FromDishka, inject
-from fastapi import APIRouter, Body, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, status
 
 from src.application.dtos.user import UserDTO
 from src.application.mediator import Mediator
