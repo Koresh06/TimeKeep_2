@@ -1,5 +1,6 @@
 import sentry_sdk
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from dishka import make_async_container
 from dishka.integrations.fastapi import setup_dishka
@@ -22,6 +23,14 @@ def create_app() -> FastAPI:
         title="Timekeep API",
         description="API for timekeeping",
         version="1.0.0",
+    )
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.app.allowed_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
     container = make_async_container(

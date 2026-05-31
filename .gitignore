@@ -95,3 +95,5 @@ my_database.db
 .env.db
 README-logic.md
 .claude
+.ruff_cache
+.pytest_cache

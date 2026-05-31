@@ -25,11 +25,11 @@ from src.presentation.dependencies.permission import (
 )
 
 
-router = APIRouter(prefix="/day_off", tags=["day_off"])
+router = APIRouter(prefix="/day-offs", tags=["day-off"])
 
 
 @router.post(
-    "/",
+    "",
     response_model=DayOffResponse,
     status_code=status.HTTP_201_CREATED,
 )
@@ -58,11 +58,15 @@ async def get_all_me(
     mediator: FromDishka[Mediator],
     current_user: UserTokenData = Depends(get_require_user()),
     status: DayOffStatus | None = None,
+    offset: int = 0,
+    limit: int = 20,
 ) -> list[DayOffResponse]:
     result: list[DayOffDTO] = await mediator.handle(
         GetAllDayOffsQuery(
             user_id=current_user.user_id,
             status=status,
+            offset=offset,
+            limit=limit,
         )
     )
     return [
@@ -81,11 +85,15 @@ async def get_all_by_department(
     mediator: FromDishka[Mediator],
     current_user: UserTokenData = Depends(get_require_moderator()),
     status: DayOffStatus | None = None,
+    offset: int = 0,
+    limit: int = 20,
 ) -> list[DayOffResponse]:
     result: list[DayOffDTO] = await mediator.handle(
         GetAllDayOffsQuery(
             department_id=current_user.department_id,
             status=status,
+            offset=offset,
+            limit=limit,
         )
     )
     return [
@@ -104,11 +112,15 @@ async def get_all_by_organization(
     mediator: FromDishka[Mediator],
     current_user: UserTokenData = Depends(get_require_admin()),
     status: DayOffStatus | None = None,
+    offset: int = 0,
+    limit: int = 20,
 ) -> list[DayOffResponse]:
     result: list[DayOffDTO] = await mediator.handle(
         GetAllDayOffsQuery(
             organization_id=current_user.organization_id,
             status=status,
+            offset=offset,
+            limit=limit,
         )
     )
     return [
@@ -127,10 +139,14 @@ async def get_all_by_super_admin(
     mediator: FromDishka[Mediator],
     current_user: UserTokenData = Depends(get_require_super_admin()),
     status: DayOffStatus | None = None,
+    offset: int = 0,
+    limit: int = 20,
 ) -> list[DayOffResponse]:
     result: list[DayOffDTO] = await mediator.handle(
         GetAllDayOffsQuery(
             status=status,
+            offset=offset,
+            limit=limit,
         )
     )
     return [

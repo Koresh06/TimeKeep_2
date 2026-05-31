@@ -22,7 +22,7 @@ router = APIRouter(prefix="/organizations", tags=["organization"])
 
 
 @router.post(
-    "/",
+    "",
     response_model=OrganizationResponse,
     status_code=status.HTTP_201_CREATED,
 )

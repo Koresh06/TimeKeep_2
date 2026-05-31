@@ -89,7 +89,7 @@ async def get_all_by_organization(
 
 
 @router.get(
-    "/",
+    "",
     status_code=status.HTTP_200_OK,
     response_model=list[UserResponse],
 )

@@ -19,7 +19,7 @@ router = APIRouter(prefix="/departments", tags=["department"])
 
 
 @router.post(
-    "/",
+    "",
     response_model=DepartmentResponse,
     status_code=status.HTTP_201_CREATED,
 )

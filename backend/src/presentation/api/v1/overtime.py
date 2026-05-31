@@ -19,11 +19,11 @@ from src.presentation.schemas.overtime import (
     OvertimeResponse,
 )
 
-router = APIRouter(prefix="/overtime", tags=["overtime"])
+router = APIRouter(prefix="/overtimes", tags=["overtime"])
 
 
 @router.post(
-    "/",
+    "",
     response_model=OvertimeResponse,
     status_code=status.HTTP_201_CREATED,
 )
