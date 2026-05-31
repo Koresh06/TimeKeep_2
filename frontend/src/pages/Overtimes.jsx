@@ -1,16 +1,40 @@
-import { useState } from 'react'
-import { useFetch } from '../hooks/useFetch'
-import { getMyOvertimes, createOvertime } from '../api/overtimes'
+import { useState, useEffect, useCallback } from 'react'
+import { getMyOvertimes, createOvertime, deleteOvertime } from '../api/overtimes'
 import Spinner from '../components/Spinner'
+import {
+  PageTitle, Card, SectionTitle, Label, Input, BtnPrimary, BtnDanger, BtnSecondary,
+  ErrorMsg, StatusBadge, TableContainer, Table, THead, Th, Td, TRow, EmptyState,
+  Pagination,
+} from '../components/ui'
 
-const empty = { date: '', time_from: '', time_to: '', description: '' }
+const empty = { date: '', start_time: '', end_time: '', description: '' }
 
 export default function Overtimes() {
-  const { data, loading, error, reload } = useFetch(getMyOvertimes)
+  const [data, setData] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [form, setForm] = useState(empty)
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const [offset, setOffset] = useState(0)
+  const [deletingId, setDeletingId] = useState(null)
+  const LIMIT = 15
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await getMyOvertimes({ offset, limit: LIMIT })
+      setData(res.data || [])
+    } catch (e) {
+      setError(e.response?.data?.detail || 'Ошибка загрузки')
+    } finally {
+      setLoading(false)
+    }
+  }, [offset])
+
+  useEffect(() => { load() }, [load])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -20,7 +44,8 @@ export default function Overtimes() {
       await createOvertime(form)
       setForm(empty)
       setShowForm(false)
-      reload()
+      setOffset(0)
+      load()
     } catch (e) {
       setFormError(e.response?.data?.detail || 'Ошибка при сохранении')
     } finally {
@@ -28,83 +53,118 @@ export default function Overtimes() {
     }
   }
 
-  const field = (key, label, type = 'text') => (
-    <div>
-      <label className="block text-xs text-slate-400 mb-1">{label}</label>
-      <input
-        type={type}
-        value={form[key]}
-        onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-        required={key !== 'description'}
-        className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition-colors"
-      />
-    </div>
-  )
+  const handleDelete = async (id) => {
+    if (!confirm('Удалить переработку?')) return
+    setDeletingId(id)
+    try {
+      await deleteOvertime(id)
+      setData(d => d.filter(o => o.id !== id))
+    } catch (e) {
+      alert(e.response?.data?.detail || 'Ошибка при удалении')
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-slate-100">Переработки</h2>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-        >
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+        <PageTitle>Мои переработки</PageTitle>
+        <BtnPrimary onClick={() => setShowForm(!showForm)}>
           {showForm ? 'Отмена' : '+ Добавить'}
-        </button>
+        </BtnPrimary>
       </div>
 
       {showForm && (
-        <form
-          onSubmit={handleSubmit}
-          className="bg-slate-900 border border-slate-700 rounded-xl p-5 flex flex-col gap-4"
-        >
-          <h3 className="text-slate-200 font-semibold">Новая переработка</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {field('date', 'Дата', 'date')}
-            {field('time_from', 'Начало', 'time')}
-            {field('time_to', 'Конец', 'time')}
-          </div>
-          {field('description', 'Описание (необязательно)')}
-          {formError && <p className="text-red-400 text-xs">{formError}</p>}
-          <button
-            type="submit"
-            disabled={submitting}
-            className="self-start bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors"
-          >
-            {submitting ? 'Сохранение...' : 'Сохранить'}
-          </button>
-        </form>
+        <Card style={{ padding: 20 }}>
+          <SectionTitle style={{ marginBottom: 16 }}>Новая переработка</SectionTitle>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
+              <div>
+                <Label>Дата</Label>
+                <Input type="date" value={form.date}
+                  onChange={e => setForm({ ...form, date: e.target.value })} required />
+              </div>
+              <div>
+                <Label>Начало</Label>
+                <Input type="time" value={form.start_time}
+                  onChange={e => setForm({ ...form, start_time: e.target.value })} required />
+              </div>
+              <div>
+                <Label>Конец</Label>
+                <Input type="time" value={form.end_time}
+                  onChange={e => setForm({ ...form, end_time: e.target.value })} required />
+              </div>
+            </div>
+            <div>
+              <Label>Описание (необязательно)</Label>
+              <Input value={form.description}
+                onChange={e => setForm({ ...form, description: e.target.value })}
+                placeholder="Причина переработки" />
+            </div>
+            <ErrorMsg>{formError}</ErrorMsg>
+            <BtnPrimary type="submit" loading={submitting} style={{ alignSelf: 'flex-start' }}>
+              Сохранить переработку
+            </BtnPrimary>
+          </form>
+        </Card>
       )}
 
       {loading && <Spinner />}
-      {error && <p className="text-red-400 text-sm">{error}</p>}
+      {error && <ErrorMsg>{error}</ErrorMsg>}
+
       {!loading && !error && (
-        <div className="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
-          {!data || data.length === 0 ? (
-            <p className="p-5 text-slate-500 text-sm">Нет записей</p>
+        <TableContainer>
+          {data.length === 0 ? (
+            <EmptyState message={offset > 0 ? 'Больше записей нет' : 'Нет переработок'} />
           ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-700 text-slate-400 text-xs uppercase">
-                  <th className="text-left px-4 py-3">Дата</th>
-                  <th className="text-left px-4 py-3">Начало</th>
-                  <th className="text-left px-4 py-3">Конец</th>
-                  <th className="text-left px-4 py-3">Описание</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((o) => (
-                  <tr key={o.id} className="border-b border-slate-800 hover:bg-slate-800/50 transition-colors">
-                    <td className="px-4 py-3 text-slate-200">{o.date}</td>
-                    <td className="px-4 py-3 text-slate-300">{o.time_from}</td>
-                    <td className="px-4 py-3 text-slate-300">{o.time_to}</td>
-                    <td className="px-4 py-3 text-slate-400">{o.description || '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <>
+              <Table>
+                <THead>
+                  <Th>Дата</Th>
+                  <Th>Начало</Th>
+                  <Th>Конец</Th>
+                  <Th>Часов</Th>
+                  <Th>Описание</Th>
+                  <Th>Статус</Th>
+                  <Th></Th>
+                </THead>
+                <tbody>
+                  {data.map(o => {
+                    const [fh, fm] = (o.start_time || '0:0').split(':').map(Number)
+                    const [th, tm] = (o.end_time || '0:0').split(':').map(Number)
+                    const dur = ((th * 60 + tm) - (fh * 60 + fm)) / 60
+                    return (
+                      <TRow key={o.id}>
+                        <Td style={{ fontWeight: 500, color: '#f1f5f9' }}>{o.date_}</Td>
+                        <Td style={{ color: '#93c5fd' }}>{o.start_time?.slice(0, 5)}</Td>
+                        <Td style={{ color: '#93c5fd' }}>{o.end_time?.slice(0, 5)}</Td>
+                        <Td style={{ color: '#4ade80', fontWeight: 600 }}>
+                          {dur > 0 ? `${dur.toFixed(1)} ч` : '—'}
+                        </Td>
+                        <Td style={{ color: '#94a3b8', maxWidth: 200 }}>
+                          {o.description || '—'}
+                        </Td>
+                        <Td><StatusBadge status={o.status} /></Td>
+                        <Td>
+                          {o.status === 'active' && (
+                            <BtnDanger
+                              onClick={() => handleDelete(o.id)}
+                              disabled={deletingId === o.id}
+                            >
+                              {deletingId === o.id ? '...' : 'Удалить'}
+                            </BtnDanger>
+                          )}
+                        </Td>
+                      </TRow>
+                    )
+                  })}
+                </tbody>
+              </Table>
+              <Pagination offset={offset} limit={LIMIT} onChangePage={setOffset} />
+            </>
           )}
-        </div>
+        </TableContainer>
       )}
     </div>
   )

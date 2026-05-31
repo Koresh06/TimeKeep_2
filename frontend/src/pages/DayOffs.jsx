@@ -1,26 +1,41 @@
-import { useState } from 'react'
-import { useFetch } from '../hooks/useFetch'
+import { useState, useEffect, useCallback } from 'react'
 import { getMyDayOffs, createDayOff, downloadReport } from '../api/dayoffs'
 import Spinner from '../components/Spinner'
-
-const STATUS_MAP = {
-  pending: { label: 'Ожидает', cls: 'bg-yellow-900 text-yellow-300' },
-  approved: { label: 'Одобрен', cls: 'bg-green-900 text-green-300' },
-  rejected: { label: 'Отклонён', cls: 'bg-red-900 text-red-300' },
-}
-
-function StatusBadge({ status }) {
-  const { label, cls } = STATUS_MAP[status] || { label: status, cls: 'bg-slate-700 text-slate-300' }
-  return <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cls}`}>{label}</span>
-}
+import {
+  PageTitle, Card, SectionTitle, Label, Input, Select, BtnPrimary, BtnSecondary,
+  ErrorMsg, StatusBadge, TableContainer, Table, THead, Th, Td, TRow, EmptyState,
+  Pagination,
+} from '../components/ui'
 
 export default function DayOffs() {
-  const { data, loading, error, reload } = useFetch(getMyDayOffs)
+  const [data, setData] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [showForm, setShowForm] = useState(false)
   const [date, setDate] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState('')
   const [downloading, setDownloading] = useState(null)
+  const [offset, setOffset] = useState(0)
+  const [statusFilter, setStatusFilter] = useState('')
+  const LIMIT = 15
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const params = { offset, limit: LIMIT }
+      if (statusFilter) params.status = statusFilter
+      const res = await getMyDayOffs(params)
+      setData(res.data || [])
+    } catch (e) {
+      setError(e.response?.data?.detail || 'Ошибка загрузки')
+    } finally {
+      setLoading(false)
+    }
+  }, [offset, statusFilter])
+
+  useEffect(() => { load() }, [load])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -30,7 +45,8 @@ export default function DayOffs() {
       await createDayOff({ date })
       setDate('')
       setShowForm(false)
-      reload()
+      setOffset(0)
+      load()
     } catch (e) {
       setFormError(e.response?.data?.detail || 'Ошибка при сохранении')
     } finally {
@@ -50,81 +66,137 @@ export default function DayOffs() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-slate-100">Отгулы</h2>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-        >
-          {showForm ? 'Отмена' : '+ Взять отгул'}
-        </button>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+        <PageTitle>Мои отгулы</PageTitle>
+        <BtnPrimary onClick={() => setShowForm(!showForm)}>
+          {showForm ? 'Отмена' : '+ Оформить отгул'}
+        </BtnPrimary>
       </div>
 
       {showForm && (
-        <form
-          onSubmit={handleSubmit}
-          className="bg-slate-900 border border-slate-700 rounded-xl p-5 flex flex-col gap-4"
-        >
-          <h3 className="text-slate-200 font-semibold">Новый отгул</h3>
-          <div className="max-w-xs">
-            <label className="block text-xs text-slate-400 mb-1">Дата</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-              className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition-colors"
-            />
-          </div>
-          {formError && <p className="text-red-400 text-xs">{formError}</p>}
-          <button
-            type="submit"
-            disabled={submitting}
-            className="self-start bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors"
-          >
-            {submitting ? 'Сохранение...' : 'Подать заявку'}
-          </button>
-        </form>
+        <Card style={{ padding: 20 }}>
+          <SectionTitle style={{ marginBottom: 16 }}>Заявка на отгул</SectionTitle>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 320 }}>
+            <div>
+              <Label>Дата отгула</Label>
+              <Input
+                type="date"
+                value={date}
+                onChange={e => setDate(e.target.value)}
+                required
+              />
+            </div>
+            <div
+              style={{
+                background: 'rgba(26,75,140,0.1)',
+                border: '1px solid rgba(26,75,140,0.3)',
+                borderRadius: 6,
+                padding: '10px 12px',
+                fontSize: 12,
+                color: '#93c5fd',
+              }}
+            >
+              💡 Система автоматически спишет накопленные часы для выбранной даты
+            </div>
+            <ErrorMsg>{formError}</ErrorMsg>
+            <BtnPrimary type="submit" loading={submitting} style={{ alignSelf: 'flex-start' }}>
+              Подать заявку
+            </BtnPrimary>
+          </form>
+        </Card>
       )}
 
+      {/* Filters */}
+      <div
+        style={{
+          display: 'flex',
+          gap: 10,
+          alignItems: 'center',
+          padding: '12px 16px',
+          background: '#0f1e36',
+          border: '1px solid #1e3a5a',
+          borderRadius: 8,
+          flexWrap: 'wrap',
+        }}
+      >
+        <span style={{ color: '#64748b', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          Фильтр:
+        </span>
+        {['', 'pending', 'approved', 'rejected'].map(s => (
+          <button
+            key={s}
+            onClick={() => { setStatusFilter(s); setOffset(0) }}
+            style={{
+              background: statusFilter === s ? 'rgba(200,30,30,0.15)' : 'transparent',
+              border: `1px solid ${statusFilter === s ? '#c81e1e' : '#1e3a5a'}`,
+              borderRadius: 5,
+              padding: '4px 12px',
+              color: statusFilter === s ? '#f87171' : '#94a3b8',
+              fontSize: 12,
+              cursor: 'pointer',
+              fontWeight: statusFilter === s ? 600 : 400,
+            }}
+          >
+            {s === '' ? 'Все' : s === 'pending' ? 'Ожидает' : s === 'approved' ? 'Одобрен' : 'Отклонён'}
+          </button>
+        ))}
+      </div>
+
       {loading && <Spinner />}
-      {error && <p className="text-red-400 text-sm">{error}</p>}
+      {error && <ErrorMsg>{error}</ErrorMsg>}
+
       {!loading && !error && (
-        <div className="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
-          {!data || data.length === 0 ? (
-            <p className="p-5 text-slate-500 text-sm">Нет записей</p>
+        <TableContainer>
+          {data.length === 0 ? (
+            <EmptyState message={offset > 0 ? 'Больше записей нет' : 'Нет отгулов'} />
           ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-700 text-slate-400 text-xs uppercase">
-                  <th className="text-left px-4 py-3">Дата</th>
-                  <th className="text-left px-4 py-3">Статус</th>
-                  <th className="text-left px-4 py-3">Рапорт</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((d) => (
-                  <tr key={d.id} className="border-b border-slate-800 hover:bg-slate-800/50 transition-colors">
-                    <td className="px-4 py-3 text-slate-200">{d.date}</td>
-                    <td className="px-4 py-3">
-                      <StatusBadge status={d.status} />
-                    </td>
-                    <td className="px-4 py-3">
-                      <button
-                        onClick={() => handleDownload(d.id)}
-                        disabled={downloading === d.id}
-                        className="text-blue-400 hover:text-blue-300 text-xs disabled:opacity-50 transition-colors"
-                      >
-                        {downloading === d.id ? 'Загрузка...' : '↓ Скачать'}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <>
+              <Table>
+                <THead>
+                  <Th>Дата</Th>
+                  <Th>Статус</Th>
+                  <Th>Переработок</Th>
+                  <Th>Создана</Th>
+                  <Th>Рапорт</Th>
+                </THead>
+                <tbody>
+                  {data.map(d => (
+                    <TRow key={d.id}>
+                      <Td style={{ fontWeight: 500, color: '#f1f5f9' }}>{d.date_}</Td>
+                      <Td><StatusBadge status={d.status} /></Td>
+                      <Td style={{ color: '#94a3b8' }}>{d.overtimes?.length || 0}</Td>
+                      <Td style={{ color: '#64748b', fontSize: 12 }}>
+                        {d.created_at?.slice(0, 10)}
+                      </Td>
+                      <Td>
+                        {d.status === 'approved' && (
+                          <button
+                            onClick={() => handleDownload(d.id)}
+                            disabled={downloading === d.id}
+                            style={{
+                              background: 'rgba(34,197,94,0.1)',
+                              color: downloading === d.id ? '#64748b' : '#4ade80',
+                              border: '1px solid rgba(34,197,94,0.25)',
+                              borderRadius: 5,
+                              padding: '4px 10px',
+                              fontSize: 11,
+                              cursor: downloading === d.id ? 'not-allowed' : 'pointer',
+                              fontWeight: 500,
+                            }}
+                          >
+                            {downloading === d.id ? 'Загрузка...' : '↓ Скачать рапорт'}
+                          </button>
+                        )}
+                      </Td>
+                    </TRow>
+                  ))}
+                </tbody>
+              </Table>
+              <Pagination offset={offset} limit={LIMIT} onChangePage={setOffset} />
+            </>
           )}
-        </div>
+        </TableContainer>
       )}
     </div>
   )

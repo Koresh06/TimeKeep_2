@@ -1,79 +1,224 @@
 import { useFetch } from '../hooks/useFetch'
 import { getMyOvertimes } from '../api/overtimes'
 import { getMyDayOffs } from '../api/dayoffs'
+import { useAuth } from '../context/AuthContext'
 import Spinner from '../components/Spinner'
+import {
+  PageTitle, StatCard, Card, SectionTitle,
+  StatusBadge, TableContainer, Table, THead, Th, Td, TRow, EmptyState,
+} from '../components/ui'
 import { Link } from 'react-router-dom'
 
-function totalMinutes(overtimes) {
-  return (overtimes || []).reduce((acc, o) => {
-    const [fh, fm] = o.time_from.split(':').map(Number)
-    const [th, tm] = o.time_to.split(':').map(Number)
-    return acc + (th * 60 + tm) - (fh * 60 + fm)
+const ROLE_LABELS = {
+  user: 'Сотрудник',
+  moderator: 'Модератор',
+  admin: 'Администратор',
+  super_admin: 'Суперадминистратор',
+}
+
+const WORK_MODE_LABELS = {
+  daily: 'Ежедневный режим',
+  shift: 'Сменный режим',
+}
+
+function totalDurationH(overtimes = []) {
+  return overtimes.reduce((acc, o) => {
+    const [fh, fm] = (o.start_time || '0:0').split(':').map(Number)
+    const [th, tm] = (o.end_time || '0:0').split(':').map(Number)
+    return acc + (th * 60 + tm - (fh * 60 + fm)) / 60
   }, 0)
 }
 
-function formatHours(minutes) {
-  const h = Math.floor(minutes / 60)
-  const m = minutes % 60
-  return m > 0 ? `${h} ч ${m} мин` : `${h} ч`
+function availableHours(overtimes = []) {
+  return overtimes
+    .filter(o => o.status === 'active')
+    .reduce((acc, o) => {
+      const [fh, fm] = (o.start_time || '0:0').split(':').map(Number)
+      const [th, tm] = (o.end_time || '0:0').split(':').map(Number)
+      const dur = (th * 60 + tm - (fh * 60 + fm)) / 60
+      return acc + Math.max(dur - (o.used_hours || 0), 0)
+    }, 0)
 }
 
-function StatusBadge({ status }) {
-  const map = {
-    pending: { label: 'Ожидает', cls: 'bg-yellow-900 text-yellow-300' },
-    approved: { label: 'Одобрен', cls: 'bg-green-900 text-green-300' },
-    rejected: { label: 'Отклонён', cls: 'bg-red-900 text-red-300' },
-  }
-  const { label, cls } = map[status] || { label: status, cls: 'bg-slate-700 text-slate-300' }
-  return <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cls}`}>{label}</span>
+function formatH(h) {
+  const hours = Math.floor(h)
+  const mins = Math.round((h - hours) * 60)
+  return mins > 0 ? `${hours} ч ${mins} мин` : `${hours} ч`
 }
 
 export default function Dashboard() {
+  const { tokenData } = useAuth()
   const { data: overtimes, loading: lo } = useFetch(getMyOvertimes)
   const { data: dayoffs, loading: ld } = useFetch(getMyDayOffs)
 
   if (lo || ld) return <Spinner />
 
-  const mins = totalMinutes(overtimes)
-  const recent = (dayoffs || []).slice(0, 5)
+  const total = totalDurationH(overtimes)
+  const avail = availableHours(overtimes)
+  const recent = (dayoffs || []).slice(-5).reverse()
 
   return (
-    <div className="flex flex-col gap-6">
-      <h2 className="text-2xl font-bold text-slate-100">Главная</h2>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard label="Переработок" value={(overtimes || []).length} />
-        <StatCard label="Всего часов" value={formatHours(mins)} />
-        <StatCard label="Отгулов" value={(dayoffs || []).length} />
-      </div>
-
-      <div className="bg-slate-900 border border-slate-700 rounded-xl p-5">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-slate-200 font-semibold">Последние отгулы</h3>
-          <Link to="/day-offs" className="text-blue-400 text-sm hover:underline">Все →</Link>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
+        <div>
+          <PageTitle>Главная панель</PageTitle>
+          <p style={{ color: '#64748b', fontSize: 12, margin: '4px 0 0' }}>
+            {ROLE_LABELS[tokenData?.role] || 'Сотрудник'} ·{' '}
+            {WORK_MODE_LABELS[tokenData?.work_mode] || ''}
+          </p>
         </div>
-        {recent.length === 0 ? (
-          <p className="text-slate-500 text-sm">Нет отгулов</p>
-        ) : (
-          <ul className="flex flex-col gap-3">
-            {recent.map((d) => (
-              <li key={d.id} className="flex justify-between items-center text-sm">
-                <span className="text-slate-300">{d.date}</span>
-                <StatusBadge status={d.status} />
-              </li>
-            ))}
-          </ul>
-        )}
+        <div
+          style={{
+            background: 'rgba(200,30,30,0.08)',
+            border: '1px solid rgba(200,30,30,0.2)',
+            borderRadius: 8,
+            padding: '6px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          <div style={{ width: 8, height: 8, background: '#22c55e', borderRadius: '50%' }} />
+          <span style={{ color: '#94a3b8', fontSize: 12 }}>Система активна</span>
+        </div>
       </div>
-    </div>
-  )
-}
 
-function StatCard({ label, value }) {
-  return (
-    <div className="bg-slate-900 border border-slate-700 rounded-xl p-5">
-      <p className="text-slate-400 text-xs mb-1">{label}</p>
-      <p className="text-2xl font-bold text-slate-100">{value}</p>
+      {/* Stats grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14 }}>
+        <StatCard
+          label="Переработок"
+          value={(overtimes || []).length}
+          sub="Всего записей"
+          color="#c81e1e"
+        />
+        <StatCard
+          label="Всего часов"
+          value={formatH(total)}
+          sub="Накоплено"
+          color="#1a4b8c"
+        />
+        <StatCard
+          label="Доступно"
+          value={formatH(avail)}
+          sub="Для отгула"
+          color="#16a34a"
+        />
+        <StatCard
+          label="Отгулов"
+          value={(dayoffs || []).length}
+          sub="Всего заявок"
+          color="#d97706"
+        />
+      </div>
+
+      {/* Recent day-offs + quick access */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+        {/* Recent day-offs */}
+        <Card>
+          <div style={{ padding: '16px 16px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #1e3a5a' }}>
+            <SectionTitle>Последние отгулы</SectionTitle>
+            <Link to="/day-offs" style={{ color: '#93c5fd', fontSize: 11, textDecoration: 'none', fontWeight: 500 }}>
+              Все →
+            </Link>
+          </div>
+          {recent.length === 0 ? (
+            <EmptyState message="Нет заявок на отгул" />
+          ) : (
+            <div>
+              {recent.map((d) => (
+                <div
+                  key={d.id}
+                  style={{
+                    padding: '10px 16px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    borderBottom: '1px solid rgba(30,58,90,0.4)',
+                  }}
+                >
+                  <div>
+                    <span style={{ color: '#e2e8f0', fontSize: 13, fontWeight: 500 }}>
+                      {d.date_}
+                    </span>
+                    <div style={{ color: '#64748b', fontSize: 11, marginTop: 1 }}>
+                      {d.overtimes?.length || 0} переработок
+                    </div>
+                  </div>
+                  <StatusBadge status={d.status} />
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        {/* Recent overtimes */}
+        <Card>
+          <div style={{ padding: '16px 16px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #1e3a5a' }}>
+            <SectionTitle>Последние переработки</SectionTitle>
+            <Link to="/overtimes" style={{ color: '#93c5fd', fontSize: 11, textDecoration: 'none', fontWeight: 500 }}>
+              Все →
+            </Link>
+          </div>
+          {(!overtimes || overtimes.length === 0) ? (
+            <EmptyState message="Нет записей переработок" />
+          ) : (
+            <div>
+              {[...(overtimes || [])].reverse().slice(0, 5).map((o) => (
+                <div
+                  key={o.id}
+                  style={{
+                    padding: '10px 16px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    borderBottom: '1px solid rgba(30,58,90,0.4)',
+                  }}
+                >
+                  <div>
+                    <span style={{ color: '#e2e8f0', fontSize: 13, fontWeight: 500 }}>
+                      {o.date_}
+                    </span>
+                    <div style={{ color: '#64748b', fontSize: 11, marginTop: 1 }}>
+                      {o.start_time?.slice(0, 5)} — {o.end_time?.slice(0, 5)}
+                    </div>
+                  </div>
+                  <StatusBadge status={o.status} />
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </div>
+
+      {/* Quick action links */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+        {[
+          { to: '/overtimes', label: '+ Добавить переработку', color: '#1a4b8c' },
+          { to: '/day-offs', label: '+ Оформить отгул', color: '#c81e1e' },
+          { to: '/statistics', label: '📊 Моя статистика', color: '#16a34a' },
+        ].map(({ to, label, color }) => (
+          <Link
+            key={to}
+            to={to}
+            style={{
+              background: `rgba(${color === '#c81e1e' ? '200,30,30' : color === '#1a4b8c' ? '26,75,140' : '22,163,74'},0.1)`,
+              border: `1px solid ${color}33`,
+              borderRadius: 8,
+              padding: '12px 16px',
+              color,
+              fontSize: 13,
+              fontWeight: 600,
+              textDecoration: 'none',
+              display: 'block',
+              textAlign: 'center',
+              transition: 'background 0.15s',
+            }}
+          >
+            {label}
+          </Link>
+        ))}
+      </div>
     </div>
   )
 }
