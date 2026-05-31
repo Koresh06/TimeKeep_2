@@ -18,7 +18,6 @@ from src.domain.interfaces.services.document_generator import IDocumentGenerator
 from src.domain.interfaces.services.jwt import IJWTService
 from src.domain.interfaces.services.password_hasher import IPasswordHasher
 from src.domain.interfaces.transaction_manager import ITransactionManager
-from src.infrastructure.cache.redis import RedisCache
 from src.infrastructure.repositories.sqlalchemy.implementation.user import (
     UserSQLAlchemyRepository,
 )

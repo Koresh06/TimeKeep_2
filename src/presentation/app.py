@@ -24,10 +24,6 @@ def create_app() -> FastAPI:
         description="API for timekeeping",
         version="1.0.0",
     )
-    
-    @app.get("/sentry-debug")
-    async def trigger_error():
-        division_by_zero = 1 / 0
 
     container = make_async_container(
         *make_base_providers(),

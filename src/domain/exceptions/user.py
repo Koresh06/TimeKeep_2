@@ -10,7 +10,7 @@ class UserAlreadyExistsError(TimeKeepError):
 class InvalidCredentialsError(TimeKeepError):
     """Неверные логин или пароль"""
     def __init__(self) -> None:
-        super().__init__(f"Неверные логин или пароль")
+        super().__init__("Неверные логин или пароль")
 
 class UserNotFoundError(TimeKeepError):
     """Пользователь не найден"""

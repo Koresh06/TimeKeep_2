@@ -2,7 +2,6 @@ from dataclasses import dataclass
 
 from src.application.dtos.deparment import DepartmentDTO
 from src.application.use_cases.base import UseCase, UseCaseRequest
-from src.domain.entities.department import Department
 from src.domain.interfaces.cache import ICache
 from src.domain.interfaces.repositories.department import IDepartmentRepository
 

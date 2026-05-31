@@ -1,5 +1,4 @@
 import pytest
-from datetime import date
 
 from src.application.use_cases.day_off.moderate import ModerateDayOffUseCase, ModerateDayOffCommand
 from src.domain.entities.day_off import DayOff

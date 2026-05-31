@@ -3,12 +3,11 @@ from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, Body, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from src.application.dtos.token import TokenDTO
 from src.application.dtos.user import UserDTO
 from src.application.mediator import Mediator
 from src.application.use_cases.auth.login import LoginCommand
 from src.application.use_cases.auth.register import RegisterUserCommand
-from src.presentation.schemas.auth import LoginUser, RegisterUser, TokenResponse, UserResponse
+from src.presentation.schemas.auth import RegisterUser, TokenResponse, UserResponse
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])

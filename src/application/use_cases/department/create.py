@@ -1,10 +1,9 @@
 from dataclasses import dataclass
-from datetime import date, time
 
 from src.application.dtos.deparment import DepartmentDTO
 from src.application.use_cases.base import UseCase, UseCaseRequest
 from src.domain.entities.department import Department
-from src.domain.exceptions.department import DepartmentNotFoundError, DepartmentAlreadyExistsError
+from src.domain.exceptions.department import DepartmentAlreadyExistsError
 from src.domain.interfaces.repositories.department import IDepartmentRepository
 from src.domain.interfaces.transaction_manager import ITransactionManager
 

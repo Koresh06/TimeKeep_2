@@ -2,7 +2,6 @@ import pytest
 
 from src.application.use_cases.overtime.create import CreateOvertimeUseCase
 from src.application.use_cases.overtime.create import CreateOvertimeCommand
-from src.domain.entities.overtime import Overtime
 from src.domain.entities.user import User
 from src.domain.exceptions.overtime import OvertimeOverlapError
 from src.infrastructure.repositories.in_memory.implementation.overtime import (

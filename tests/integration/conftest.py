@@ -9,7 +9,6 @@ from src.domain.enums.day_off_status import DayOffStatus
 from src.domain.enums.rank import Rank
 from src.domain.enums.role import Role
 from src.domain.enums.work_mode import WorkMode
-from src.domain.interfaces.services.password_hasher import IPasswordHasher
 from src.infrastructure.repositories.in_memory.implementation.user import (
     UserInMemoryRepository,
 )

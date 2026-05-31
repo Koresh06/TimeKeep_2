@@ -1,7 +1,6 @@
 from datetime import timedelta
 from typing import Protocol
 
-from src.domain.enums.role import Role
 
 
 class IJWTService(Protocol):

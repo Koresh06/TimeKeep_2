@@ -33,3 +33,6 @@ test:
 
 lint:
 	uv run ruff check src/
+
+format:
+	uv run ruff format src/

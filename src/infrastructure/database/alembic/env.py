@@ -9,14 +9,6 @@ from alembic import context
 from src.core.config import settings
 from src.infrastructure.database.models.base import BaseModel
 
-from src.infrastructure.database.models import (
-    UserModel,
-    DepartmentModel,
-    OrganizationModel,
-    OvertimeModel,
-    DayOffModel,
-    DayOffOvertimeModel,
-) # noqa
 
 
 # this is the Alembic Config object, which provides
