@@ -23,6 +23,10 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+    defaults:
+      run:
+        working-directory: backend
+
     steps:
       - uses: actions/checkout@v4
 
@@ -41,5 +45,6 @@ jobs:
           APP_CONFIG__DB__NAME: test_db
           APP_CONFIG__SECURITY__SECRET_KEY: test_secret_key
         run: uv run pytest tests/ -v
+
       - name: Run ruff
         run: uv run ruff check src/
