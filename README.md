@@ -26,12 +26,15 @@ TimeKeep — серверное приложение для автоматиза
 |---|---|
 | Фреймворк | FastAPI, Uvicorn |
 | База данных | PostgreSQL, SQLAlchemy 2.0 async, Alembic |
+| Кеширование | Redis |
 | DI контейнер | Dishka |
 | Авторизация | JWT (python-jose), bcrypt (passlib) |
 | Генерация документов | python-docx |
+| Мониторинг | Sentry |
 | Тесты | pytest, pytest-asyncio |
 | Конфигурация | pydantic-settings |
 | Пакетный менеджер | uv |
+| Деплой | Docker, Docker Compose |
 
 ---
 
@@ -44,13 +47,15 @@ src/
   core/           # энумы, исключения, конфигурация
   domain/         # бизнес-сущности, value objects, интерфейсы
   application/    # use cases, mediator, DTO
-  infrastructure/ # SQLAlchemy репозитории, сервисы
-  presentation/   # FastAPI роутеры, Dishka DI
+  infrastructure/ # SQLAlchemy репозитории, Redis кеш, сервисы
+  presentation/   # FastAPI роутеры, Dishka DI, схемы
 ```
 
 **Принцип зависимостей:** `infrastructure` и `presentation` зависят от `domain` и `application`, но не наоборот. Доменный слой не знает ни о базе данных, ни о HTTP.
 
 **CQRS через Mediator:** все операции оформлены как команды (`Command`) или запросы (`Query`). Роутер отправляет команду в медиатор, медиатор находит нужный хэндлер.
+
+**Кеширование:** организации, департаменты и профили пользователей кешируются в Redis. При изменении данных кеш инвалидируется автоматически.
 
 ---
 
@@ -82,50 +87,95 @@ src/
 Полная документация доступна по адресу `/docs` после запуска.
 
 **Auth**
-- `POST /auth/register` — регистрация пользователя (ADMIN)
+- `POST /auth/register` — регистрация пользователя (ADMIN+)
 - `POST /auth/login` — вход, получение JWT токена
 
 **Переработки**
-- `POST /overtimes` — внести переработку
-- `DELETE /overtimes/{id}` — удалить переработку
-- `GET /overtimes/me` — свои переработки
+- `POST /overtimes` — внести переработку (USER+)
+- `DELETE /overtimes/{id}` — удалить переработку (USER+)
+- `GET /overtimes/me` — свои переработки (USER+)
 - `GET /overtimes/department` — переработки департамента (MODERATOR+)
 - `GET /overtimes/organization` — переработки организации (ADMIN+)
+- `GET /overtimes` — все переработки (SUPER_ADMIN)
 
 **Отгулы**
-- `POST /day-offs` — взять отгул
-- `GET /day-offs/me` — свои отгулы
+- `POST /day-offs` — взять отгул (USER+)
+- `GET /day-offs/me` — свои отгулы (USER+)
 - `GET /day-offs/department` — отгулы департамента (MODERATOR+)
+- `GET /day-offs/organization` — отгулы организации (ADMIN+)
+- `GET /day-offs` — все отгулы (SUPER_ADMIN)
 - `PATCH /day-offs/{id}/moderate` — подтвердить/отклонить (MODERATOR+)
-- `GET /day-offs/{id}/report` — скачать рапорт .docx
+- `GET /day-offs/{id}/report` — скачать рапорт .docx (USER+)
 
 **Пользователи**
-- `GET /users/me` — свой профиль
+- `GET /users/me` — свой профиль (USER+)
+- `GET /users/department` — пользователи департамента (MODERATOR+)
+- `GET /users/organization` — пользователи организации (ADMIN+)
+- `GET /users` — все пользователи (SUPER_ADMIN)
 - `PATCH /users/{id}/role` — изменить роль (ADMIN+)
 - `PATCH /users/{id}/work-mode` — изменить режим работы (ADMIN+)
 - `PATCH /users/{id}/activate` — активировать/деактивировать (ADMIN+)
 
+**Организации**
+- `POST /organizations` — создать организацию (SUPER_ADMIN)
+- `GET /organizations/{id}` — получить организацию (ADMIN+)
+- `GET /organizations` — все организации (SUPER_ADMIN)
+
+**Департаменты**
+- `POST /departments` — создать департамент (ADMIN+)
+- `GET /departments/{id}` — получить департамент (MODERATOR+)
+- `GET /departments/organization/{id}` — департаменты организации (ADMIN+)
+
 ---
 
-## Запуск
-
-### Требования
-- Python 3.12+
-- PostgreSQL 16
-- uv
-
-### Установка
+## Запуск через Docker
 
 ```bash
 # клонировать репозиторий
 git clone https://github.com/your/timekeep.git
 cd timekeep
 
-# установить зависимости
-uv sync
-
-# создать .env файл
+# создать .env файлы
 cp .env.example .env
+cp .env.db.example .env.db
+
+# запустить
+make build
+
+# создать суперадмина
+make super-user
+```
+
+### Управление через Makefile
+
+```bash
+make up          # запустить
+make down        # остановить
+make build       # пересобрать и запустить
+make logs        # логи
+make migrate     # применить миграции
+make super-user  # создать суперадмина
+make test        # запустить тесты
+```
+
+---
+
+## Запуск локально
+
+### Требования
+- Python 3.12+
+- PostgreSQL 16
+- Redis
+- uv
+
+### Установка
+
+```bash
+uv sync
+cp .env.example .env
+alembic upgrade head
+python -m src.scripts.create_super_user
+uvicorn src.presentation.app:create_app --host 0.0.0.0 --port 8000 --factory --reload
 ```
 
 ### Настройка `.env`
@@ -136,28 +186,13 @@ APP_CONFIG__DB__USER=my_user
 APP_CONFIG__DB__PASSWORD=12345
 APP_CONFIG__DB__HOST=localhost
 APP_CONFIG__DB__PORT=5432
+APP_CONFIG__REDIS__HOST=localhost
+APP_CONFIG__REDIS__PORT=6379
 APP_CONFIG__SECURITY__SECRET_KEY=your_secret_key_here
 APP_CONFIG__SECURITY__ALGORITHM=HS256
 APP_CONFIG__SECURITY__ACCESS_TOKEN_EXPIRE_MINUTES=30
 APP_CONFIG__SECURITY__REFRESH_TOKEN_EXPIRE_MINUTES=60
-```
-
-### Миграции
-
-```bash
-alembic upgrade head
-```
-
-### Создание суперадмина
-
-```bash
-python -m src.scripts.create_super_admin
-```
-
-### Запуск
-
-```bash
-uvicorn src.presentation.app:create_app --host 0.0.0.0 --port 8000 --factory --reload
+APP_CONFIG__APP__SENTRY_DSN=your_sentry_dsn
 ```
 
 ---
@@ -165,14 +200,9 @@ uvicorn src.presentation.app:create_app --host 0.0.0.0 --port 8000 --factory --r
 ## Тесты
 
 ```bash
-# все тесты
-pytest
-
-# только юнит тесты
-pytest tests/unit/
-
-# только интеграционные
-pytest tests/integration/
+make test
+pytest tests/unit/ -v
+pytest tests/integration/ -v
 ```
 
 Интеграционные тесты используют in-memory репозитории — база данных не нужна.
@@ -185,7 +215,7 @@ pytest tests/integration/
 
 Пример рапорта:
 ```
-Начальнику Невского ГРОЧС
+Начальнику Невского РОЧС
 полковнику внутренней службы
 Иванову И.И.
 
@@ -196,6 +226,6 @@ pytest tests/integration/
 отработанное время: 20.04.2024 – работа по жилью (4 ч.);
 21.04.2024 – работа по жилью (2 ч.).
 
-Инспектор СНиП Невского ГРОЧС
+Инспектор СНиП Невского РОЧС
 лейтенант внутренней службы        А.А.Корец
 ```
