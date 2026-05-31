@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from src.application.dtos.deparment import DepartmentDTO
 from src.application.use_cases.base import UseCase, UseCaseRequest
 from src.domain.entities.department import Department
+from src.domain.interfaces.cache import ICache
 from src.domain.interfaces.repositories.department import IDepartmentRepository
 
 
@@ -16,11 +17,20 @@ class GetAllDepartmentQuery(UseCaseRequest):
 @dataclass(kw_only=True)
 class GetAllDepartmentUseCase(UseCase[GetAllDepartmentQuery, list[DepartmentDTO]]):
     department_repo: IDepartmentRepository
+    cache: ICache
 
-    async def __call__(self, command: GetAllDepartmentQuery) -> list[DepartmentDTO]:
-        result: list[Department] = await self.department_repo.get_all(
-            organization_id=command.organization_id,
-            offset=command.offset,
-            limit=command.limit,
+    async def __call__(self, query: GetAllDepartmentQuery) -> list[DepartmentDTO]:
+        cache_key = f"departments:org:{query.organization_id}:offset:{query.offset}:limit:{query.limit}"
+        
+        cached = await self.cache.get(cache_key)
+        if cached:
+            return [DepartmentDTO(**d) for d in cached]
+        
+        result = await self.department_repo.get_all(
+            organization_id=query.organization_id,
+            offset=query.offset,
+            limit=query.limit,
         )
-        return [DepartmentDTO.from_entity(department) for department in result]
+        dtos = [DepartmentDTO.from_entity(d) for d in result]
+        await self.cache.set(cache_key, [dto.__dict__ for dto in dtos], ttl=600)
+        return dtos

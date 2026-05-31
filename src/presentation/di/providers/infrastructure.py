@@ -7,8 +7,7 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
 )
 
-from src.core.config import AppSettings
-from src.core.config.database import PostgresSettings
+from src.core.config.postgres import PostgresSettings
 from src.core.config.security import SecuritySettings
 from src.domain.interfaces.repositories.day_off import IDayOffRepository
 from src.domain.interfaces.repositories.department import IDepartmentRepository
@@ -19,6 +18,7 @@ from src.domain.interfaces.services.document_generator import IDocumentGenerator
 from src.domain.interfaces.services.jwt import IJWTService
 from src.domain.interfaces.services.password_hasher import IPasswordHasher
 from src.domain.interfaces.transaction_manager import ITransactionManager
+from src.infrastructure.cache.redis import RedisCache
 from src.infrastructure.repositories.sqlalchemy.implementation.user import (
     UserSQLAlchemyRepository,
 )
@@ -93,11 +93,9 @@ class InfrastructureProvider(Provider):
         scope=Scope.REQUEST,
         provides=ITransactionManager,
     )
+    
 
     # services
-    # password_hasher = provide(PasswordHasher, scope=Scope.APP)
-    # jwt_service = provide(JWTService, scope=Scope.APP)
-    # document_generator = provide(DocumentGenerator, scope=Scope.APP)
     @provide(scope=Scope.APP, provides=IPasswordHasher)
     def get_password_hasher(self) -> IPasswordHasher:
         return PasswordHasher()

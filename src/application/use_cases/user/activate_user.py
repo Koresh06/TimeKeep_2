@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from src.application.use_cases.base import UseCase, UseCaseRequest
 from src.domain.exceptions.user import UserNotFoundError
+from src.domain.interfaces.cache import ICache
 from src.domain.interfaces.repositories.user import IUserRepository
 from src.domain.interfaces.transaction_manager import ITransactionManager
 
@@ -16,6 +17,7 @@ class ActivateUserCommand(UseCaseRequest):
 class ActivateUserUseCase(UseCase[ActivateUserCommand, None]):
     user_repo: IUserRepository
     transaction_manager: ITransactionManager
+    cache: ICache
 
     async def __call__(self, command: ActivateUserCommand) -> None:
         user = await self.user_repo.get_by_id(command.user_id)
@@ -27,3 +29,4 @@ class ActivateUserUseCase(UseCase[ActivateUserCommand, None]):
             user.deactivate()
         await self.user_repo.update(user)
         await self.transaction_manager.commit()
+        await self.cache.delete(f"user:{command.user_id}")

@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from src.application.dtos.organization import OrganizationDTO
 from src.application.use_cases.base import UseCase, UseCaseRequest
 from src.domain.entities.organization import Organization
+from src.domain.interfaces.cache import ICache
 from src.domain.interfaces.repositories.organization import IOrganizationRepository
 
 
@@ -15,10 +16,19 @@ class GetAllOrganizationQuery(UseCaseRequest):
 @dataclass(kw_only=True)
 class GetAllOrganizationUseCase(UseCase[GetAllOrganizationQuery, list[OrganizationDTO]]):
     organization_repo: IOrganizationRepository
+    cache: ICache
 
     async def __call__(self, command: GetAllOrganizationQuery) -> list[OrganizationDTO]:
-        result: list[Organization] = await self.organization_repo.get_all(
+        cache_key = f"organizations:offset:{command.offset}:limit:{command.limit}"
+
+        cached = await self.cache.get(cache_key)
+        if cached:
+            return [OrganizationDTO(**o) for o in cached]
+
+        result = await self.organization_repo.get_all(
             offset=command.offset,
             limit=command.limit,
         )
-        return [OrganizationDTO.from_entity(department) for department in result]
+        dtos = [OrganizationDTO.from_entity(o) for o in result]
+        await self.cache.set(cache_key, [dto.__dict__ for dto in dtos], ttl=600)
+        return dtos
