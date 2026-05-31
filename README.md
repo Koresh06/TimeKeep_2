@@ -6,17 +6,18 @@
 
 ## О проекте
 
-TimeKeep — серверное приложение для автоматизации учёта переработок сотрудников МЧС. Система позволяет сотрудникам фиксировать отработанное сверхурочное время, формировать заявки на отгул и получать готовый рапорт по установленному шаблону МЧС.
+TimeKeep — веб-приложение для автоматизации учёта сверхурочной работы сотрудников МЧС. Сотрудник фиксирует переработки, накапливает часы и подаёт заявку на отгул. Руководитель отдела модерирует заявки через отдельный интерфейс. Администратор управляет составом подразделения.
 
 ### Бизнес-логика
 
-Сотрудник накапливает переработки, указывая дату, временной промежуток и описание (например, "работа по жилью"). Когда накоплено достаточно часов, он подаёт заявку на отгул. Заявка уходит на модерацию руководителю отдела. После подтверждения сотруднику становится доступен рапорт в формате .docx по официальному шаблону МЧС.
+- Сотрудник вносит переработку: дата, временной промежуток, описание
+- Переработки накапливаются; для отгула нужен минимальный порог часов
+- Заявка на отгул уходит на модерацию; списание идёт по принципу FIFO
+- После подтверждения сотрудник скачивает рапорт в формате `.docx`
 
-**Два режима работы:**
-- Ежедневник (8-часовой) — для получения отгула нужно накопить 8 часов
-- Трёхсменник (24-часовой) — для получения отгула нужно накопить 24 часа
-
-**Списание переработок** происходит по принципу FIFO — самые ранние переработки списываются первыми. Последняя переработка в очереди может списаться частично — остаток сохраняется для следующего отгула.
+**Режимы работы:**
+- `daily` — ежедневный, порог **8 часов** на один отгул
+- `shift` — сменный, порог **24 часа** на один отгул
 
 ---
 
@@ -24,38 +25,37 @@ TimeKeep — серверное приложение для автоматиза
 
 | Слой | Технологии |
 |---|---|
-| Фреймворк | FastAPI, Uvicorn |
-| База данных | PostgreSQL, SQLAlchemy 2.0 async, Alembic |
-| Кеширование | Redis |
+| Backend | FastAPI, Uvicorn, Python 3.12 |
+| База данных | PostgreSQL 16, SQLAlchemy 2.0 async, Alembic |
+| Кеширование | Redis 7 |
 | DI контейнер | Dishka |
 | Авторизация | JWT (python-jose), bcrypt (passlib) |
-| Генерация документов | python-docx |
 | Мониторинг | Sentry |
-| Тесты | pytest, pytest-asyncio |
 | Конфигурация | pydantic-settings |
 | Пакетный менеджер | uv |
-| Деплой | Docker, Docker Compose |
+| Frontend | React 19, Vite, React Router 7, Tailwind CSS 4 |
+| HTTP-клиент | Axios |
+| Деплой | Docker, Docker Compose, Nginx |
 
 ---
 
-## Архитектура
+## Архитектура Backend
 
-Проект построен на принципах **чистой архитектуры** с разделением на слои:
+Чистая архитектура с CQRS через паттерн Mediator:
 
 ```
 src/
-  core/           # энумы, исключения, конфигурация
-  domain/         # бизнес-сущности, value objects, интерфейсы
+  core/           # конфигурация, логирование
+  domain/         # сущности, value objects, интерфейсы, перечисления
   application/    # use cases, mediator, DTO
-  infrastructure/ # SQLAlchemy репозитории, Redis кеш, сервисы
-  presentation/   # FastAPI роутеры, Dishka DI, схемы
+  infrastructure/ # SQLAlchemy репозитории, Redis кеш, JWT, bcrypt
+  presentation/   # FastAPI роутеры, Dishka DI, Pydantic-схемы
 ```
 
-**Принцип зависимостей:** `infrastructure` и `presentation` зависят от `domain` и `application`, но не наоборот. Доменный слой не знает ни о базе данных, ни о HTTP.
-
-**CQRS через Mediator:** все операции оформлены как команды (`Command`) или запросы (`Query`). Роутер отправляет команду в медиатор, медиатор находит нужный хэндлер.
-
-**Кеширование:** организации, департаменты и профили пользователей кешируются в Redis. При изменении данных кеш инвалидируется автоматически.
+- **Domain** не зависит от инфраструктуры и HTTP
+- **Use cases** оформлены как Command/Query, диспетчеризация через Mediator
+- **Redis** кеширует справочники (организации, подразделения)
+- **Rate limiting** — 300 запросов в минуту на IP
 
 ---
 
@@ -63,20 +63,20 @@ src/
 
 | Роль | Доступ |
 |---|---|
-| `USER` | свои переработки и отгулы |
-| `MODERATOR` | переработки и отгулы своего департамента, модерация заявок |
-| `ADMIN` | вся организация, управление пользователями |
-| `SUPER_ADMIN` | вся система |
+| `user` | свои переработки, отгулы, статистика, профиль |
+| `moderator` | + переработки и отгулы отдела, модерация заявок |
+| `admin` | + данные организации, управление режимами работы сотрудников |
+| `super_admin` | + все данные, смена ролей, активация/деактивация пользователей |
 
-Роли иерархические — каждая роль включает права предыдущей.
+Роли иерархические — каждая включает права предыдущей. Роль закодирована в JWT и декодируется на фронтенде для ролевой маршрутизации.
 
 ---
 
 ## Структура организации
 
 ```
-Организация (отдел МЧС в городе/районе)
-  └── Департамент (подразделение: инспекция, пожаротушение и т.д.)
+Организация
+  └── Подразделение (отдел)
         └── Сотрудник
 ```
 
@@ -84,115 +84,183 @@ src/
 
 ## API
 
-Полная документация доступна по адресу `/docs` после запуска.
+Интерактивная документация: `http://localhost:8000/docs`
 
-**Auth**
-- `POST /auth/register` — регистрация пользователя (ADMIN+)
-- `POST /auth/login` — вход, получение JWT токена
+### Auth (публичные)
+| Метод | Путь | Описание |
+|---|---|---|
+| `POST` | `/auth/register` | Регистрация нового пользователя |
+| `POST` | `/auth/login` | Вход, получение JWT |
+| `GET` | `/auth/organizations` | Список организаций для регистрации |
+| `GET` | `/auth/departments` | Список подразделений (фильтр по `organization_id`) |
 
-**Переработки**
-- `POST /overtimes` — внести переработку (USER+)
-- `DELETE /overtimes/{id}` — удалить переработку (USER+)
-- `GET /overtimes/me` — свои переработки (USER+)
-- `GET /overtimes/department` — переработки департамента (MODERATOR+)
-- `GET /overtimes/organization` — переработки организации (ADMIN+)
-- `GET /overtimes` — все переработки (SUPER_ADMIN)
+### Переработки
+| Метод | Путь | Роль |
+|---|---|---|
+| `POST` | `/overtimes` | user+ |
+| `DELETE` | `/overtimes/{id}` | user+ |
+| `GET` | `/overtimes/me` | user+ |
+| `GET` | `/overtimes/current-department` | moderator+ |
+| `GET` | `/overtimes/current-organization` | admin+ |
+| `GET` | `/overtimes` | super_admin |
 
-**Отгулы**
-- `POST /day-offs` — взять отгул (USER+)
-- `GET /day-offs/me` — свои отгулы (USER+)
-- `GET /day-offs/department` — отгулы департамента (MODERATOR+)
-- `GET /day-offs/organization` — отгулы организации (ADMIN+)
-- `GET /day-offs` — все отгулы (SUPER_ADMIN)
-- `PATCH /day-offs/{id}/moderate` — подтвердить/отклонить (MODERATOR+)
-- `GET /day-offs/{id}/report` — скачать рапорт .docx (USER+)
+Все GET-эндпоинты поддерживают `?offset=0&limit=20`.
 
-**Пользователи**
-- `GET /users/me` — свой профиль (USER+)
-- `GET /users/department` — пользователи департамента (MODERATOR+)
-- `GET /users/organization` — пользователи организации (ADMIN+)
-- `GET /users` — все пользователи (SUPER_ADMIN)
-- `PATCH /users/{id}/role` — изменить роль (ADMIN+)
-- `PATCH /users/{id}/work-mode` — изменить режим работы (ADMIN+)
-- `PATCH /users/{id}/activate` — активировать/деактивировать (ADMIN+)
+### Отгулы
+| Метод | Путь | Роль |
+|---|---|---|
+| `POST` | `/day-offs` | user+ |
+| `GET` | `/day-offs/me` | user+ |
+| `GET` | `/day-offs/current-department` | moderator+ |
+| `GET` | `/day-offs/current-organization` | admin+ |
+| `GET` | `/day-offs` | super_admin |
+| `PATCH` | `/day-offs/{id}/moderate?is_approved=true` | moderator+ |
+| `GET` | `/day-offs/{id}/report` | user+ |
 
-**Организации**
-- `POST /organizations` — создать организацию (SUPER_ADMIN)
-- `GET /organizations/{id}` — получить организацию (ADMIN+)
-- `GET /organizations` — все организации (SUPER_ADMIN)
+Фильтр по статусу: `?status=pending|approved|rejected`. Пагинация: `?offset=0&limit=20`.
 
-**Департаменты**
-- `POST /departments` — создать департамент (ADMIN+)
-- `GET /departments/{id}` — получить департамент (MODERATOR+)
-- `GET /departments/organization/{id}` — департаменты организации (ADMIN+)
+### Статистика
+| Метод | Путь | Роль |
+|---|---|---|
+| `GET` | `/statistics/me` | user+ |
+| `GET` | `/statistics/current-department` | moderator+ |
+| `GET` | `/statistics/current-organization` | admin+ |
+| `GET` | `/statistics` | super_admin |
 
----
+Возвращает: количество переработок, суммарные/доступные часы, распределение отгулов по статусам, помесячная разбивка переработок.
 
-## Запуск через Docker
+### Пользователи
+| Метод | Путь | Роль |
+|---|---|---|
+| `GET` | `/users/me` | user+ |
+| `GET` | `/users/current-department` | moderator+ |
+| `GET` | `/users/current-organization` | admin+ |
+| `GET` | `/users` | super_admin |
+| `PATCH` | `/users/{id}/work-mode` | admin+ |
+| `PATCH` | `/users/{id}/role` | super_admin |
+| `PATCH` | `/users/{id}/activate` | super_admin |
 
-```bash
-# клонировать репозиторий
-git clone https://github.com/your/timekeep.git
-cd timekeep
-
-# создать .env файлы
-cp .env.example .env
-cp .env.db.example .env.db
-
-# запустить
-make build
-
-# создать суперадмина
-make super-user
-```
-
-### Управление через Makefile
-
-```bash
-make up          # запустить
-make down        # остановить
-make build       # пересобрать и запустить
-make logs        # логи
-make migrate     # применить миграции
-make super-user  # создать суперадмина
-make test        # запустить тесты
-```
+### Справочники
+| Метод | Путь | Роль |
+|---|---|---|
+| `POST` | `/organizations` | super_admin |
+| `GET` | `/organizations/{id}` | admin+ |
+| `GET` | `/organizations` | super_admin |
+| `POST` | `/departments` | admin+ |
+| `GET` | `/departments/{id}` | moderator+ |
+| `GET` | `/departments/organization/{id}` | admin+ |
 
 ---
 
-## Запуск локально
+## Frontend
 
-### Требования
-- Python 3.12+
-- PostgreSQL 16
-- Redis
-- uv
+Адаптивный SPA на React 19. Дизайн в стилистике МЧС Беларуси — тёмная тема с синей навигацией и красным акцентом.
 
-### Установка
+### Страницы
+
+| Страница | Путь | Доступ |
+|---|---|---|
+| Вход | `/login` | публичная |
+| Регистрация | `/register` | публичная |
+| Главная | `/dashboard` | user+ |
+| Переработки | `/overtimes` | user+ |
+| Отгулы | `/day-offs` | user+ |
+| Статистика | `/statistics` | user+ |
+| Отдел | `/moderation` | moderator+ |
+| Управление | `/admin` | admin+ |
+| Профиль | `/profile` | user+ |
+
+### Ключевые возможности
+
+- **Регистрация** — 3-шаговый wizard: учётные данные → личные данные → выбор организации/подразделения
+- **Статистика** — SVG-графики: столбчатый (часы по месяцам), кольцевой (статусы отгулов); переключение scope по роли
+- **Страница отдела** (moderator+) — вкладки: отгулы с кнопками одобрить/отклонить, переработки, список сотрудников
+- **Управление** (admin+) — inline-смена режима работы и роли, активация/деактивация
+- **Пагинация** — offset/limit на всех таблицах
+- **Фильтрация** — статус на отгулах (все / ожидает / одобрен / отклонён)
+- **Роль в JWT** — декодируется на клиенте, управляет видимостью маршрутов и пунктов навигации
+
+---
+
+## Запуск через Docker Compose
 
 ```bash
-uv sync
-cp .env.example .env
-alembic upgrade head
-python -m src.scripts.create_super_user
-uvicorn src.presentation.app:create_app --host 0.0.0.0 --port 8000 --factory --reload
+git clone <repo>
+cd TimeKeep_2
+
+# Настроить переменные окружения
+cp backend/.env.example backend/.env
+cp backend/.env.db.example backend/.env.db
+# Отредактировать backend/.env и backend/.env.db
+
+docker compose up -d --build
 ```
 
-### Настройка `.env`
+Сервисы:
+- **Frontend** → `http://localhost:80`
+- **Backend API** → `http://localhost:8000`
+- **Swagger UI** → `http://localhost:8000/docs`
+
+### Переменные окружения (`backend/.env`)
 
 ```env
 APP_CONFIG__DB__NAME=timekeep
 APP_CONFIG__DB__USER=my_user
-APP_CONFIG__DB__PASSWORD=12345
-APP_CONFIG__DB__HOST=localhost
+APP_CONFIG__DB__PASSWORD=your_password
+APP_CONFIG__DB__HOST=db
 APP_CONFIG__DB__PORT=5432
-APP_CONFIG__REDIS__HOST=localhost
+
+APP_CONFIG__REDIS__HOST=redis
 APP_CONFIG__REDIS__PORT=6379
-APP_CONFIG__SECURITY__SECRET_KEY=your_secret_key_here
+
+APP_CONFIG__SECURITY__SECRET_KEY=your_secret_key
 APP_CONFIG__SECURITY__ALGORITHM=HS256
 APP_CONFIG__SECURITY__ACCESS_TOKEN_EXPIRE_MINUTES=30
 APP_CONFIG__SECURITY__REFRESH_TOKEN_EXPIRE_MINUTES=60
-APP_CONFIG__APP__SENTRY_DSN=your_sentry_dsn
+
+APP_CONFIG__APP__ALLOWED_ORIGINS=["http://localhost","http://localhost:5173"]
+APP_CONFIG__APP__SENTRY_DSN=  # опционально
+```
+
+```env
+# backend/.env.db
+POSTGRES_DB=timekeep
+POSTGRES_USER=my_user
+POSTGRES_PASSWORD=your_password
+```
+
+### Первый запуск
+
+Миграции применяются автоматически при старте контейнера `app`. Создайте первого пользователя через API:
+
+```bash
+# Зарегистрировать суперадмина (требуется хотя бы одна организация и подразделение в БД)
+curl -X POST http://localhost:8000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"login":"admin","password":"...","surname":"...","first_name":"...","patronymic":"...","position":"...","rank":"полковник внутренней службы","work_mode":"daily","organization_id":1,"department_id":1}'
+
+# Вручную повысить роль через psql
+docker exec -it timekeep_db psql -U my_user -d timekeep \
+  -c "UPDATE users SET role='SUPER_ADMIN' WHERE login='admin';"
+```
+
+---
+
+## Локальная разработка (без Docker)
+
+**Требования:** Python 3.12+, PostgreSQL 16, Redis, uv, Node.js 18+
+
+```bash
+# Backend
+cd backend
+uv sync
+alembic upgrade head
+uvicorn src.presentation.app:create_app --host 0.0.0.0 --port 8000 --factory --reload
+
+# Frontend (в отдельном терминале)
+cd frontend
+npm install
+npm run dev   # http://localhost:5173
 ```
 
 ---
@@ -200,32 +268,8 @@ APP_CONFIG__APP__SENTRY_DSN=your_sentry_dsn
 ## Тесты
 
 ```bash
-make test
-pytest tests/unit/ -v
-pytest tests/integration/ -v
+cd backend
+uv run pytest tests/ -v
 ```
 
-Интеграционные тесты используют in-memory репозитории — база данных не нужна.
-
----
-
-## Рапорт
-
-После подтверждения отгула модератором сотрудник может скачать рапорт в формате .docx по официальному шаблону МЧС РБ.
-
-Пример рапорта:
-```
-Начальнику Невского РОЧС
-полковнику внутренней службы
-Иванову И.И.
-
-20.09.2024
-Рапорт
-
-Прошу предоставить мне выходной день 21.09.2024, за ранее
-отработанное время: 20.04.2024 – работа по жилью (4 ч.);
-21.04.2024 – работа по жилью (2 ч.).
-
-Инспектор СНиП Невского РОЧС
-лейтенант внутренней службы        А.А.Корец
-```
+Интеграционные тесты используют in-memory репозитории — БД не требуется.
