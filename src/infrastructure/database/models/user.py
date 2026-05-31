@@ -55,7 +55,7 @@ class UserModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
     @classmethod
     def from_entity(cls, entity: "User") -> "UserModel":
         return cls(
-            id=entity.id,
+            id=entity.id or None,
             login=entity.login,
             hashed_password=entity.hashed_password,
             surname=entity.surname,

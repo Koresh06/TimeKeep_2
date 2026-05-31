@@ -40,3 +40,9 @@ class OrganizationSQLAlchemyRepository(IOrganizationRepository):
         self._session.add(organization_model)
         await self._session.flush()
         return organization_model.to_entity()
+
+    async def update(self, organization: Organization) -> Organization:
+        organization_model = OrganizationModel.from_entity(organization)
+        await self._session.merge(organization_model)
+        await self._session.flush()
+        return organization_model.to_entity()

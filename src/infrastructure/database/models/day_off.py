@@ -33,7 +33,7 @@ class DayOffModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
     @classmethod
     def from_entity(cls, entity: "DayOff") -> "DayOffModel":
         return cls(
-            id=entity.id,
+            id=entity.id or None,
             user_id=entity.user_id,
             date_=entity.date_,
             status=entity.status,

@@ -30,7 +30,7 @@ class DepartmentModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
     @classmethod
     def from_entity(cls, entity: "Department") -> "DepartmentModel":
         return cls(
-            id=entity.id,
+            id=entity.id or None,
             name=entity.name,
             organization_id=entity.organization_id,
         )

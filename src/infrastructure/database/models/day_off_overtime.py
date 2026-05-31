@@ -15,8 +15,8 @@ class DayOffOvertimeModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
     __tablename__ = "day_off_overtimes"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    day_off_id: Mapped[int] = mapped_column(ForeignKey("day_offs.id"))
-    overtime_id: Mapped[int] = mapped_column(ForeignKey("overtimes.id"))
+    day_off_id: Mapped[int] = mapped_column(ForeignKey("day_offs.id"), index=True)
+    overtime_id: Mapped[int] = mapped_column(ForeignKey("overtimes.id"), index=True)
     used_hours: Mapped[float] = mapped_column(Float, default=0.0)
 
     day_off: Mapped["DayOffModel"] = relationship(back_populates="day_off_overtimes")

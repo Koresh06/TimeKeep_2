@@ -17,12 +17,14 @@ class OrganizationModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(VARCHAR(64), unique=True)
+    name_genitive: Mapped[str] = mapped_column(VARCHAR(64), unique=True)
     boss_id: Mapped[int] = mapped_column(
         ForeignKey(
             "users.id",
             use_alter=True,
             name="fk_organization_boss_id",
         ),
+        nullable=True,
     )
 
     users: Mapped[list["UserModel"]] = relationship(
@@ -39,8 +41,9 @@ class OrganizationModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
     @classmethod
     def from_entity(cls, entity: "Organization") -> "OrganizationModel":
         return cls(
-            id=entity.id,
+            id=entity.id or None,
             name=entity.name,
+            name_genitive=entity.name_genitive,
             boss_id=entity.boss_id,
         )
 
@@ -48,5 +51,6 @@ class OrganizationModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
         return Organization(
             id=self.id,
             name=self.name,
+            name_genitive=self.name_genitive,
             boss_id=self.boss_id,
         )

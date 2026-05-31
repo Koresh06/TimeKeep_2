@@ -38,7 +38,7 @@ class OvertimeModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
     @classmethod
     def from_entity(cls, entity: "Overtime") -> "OvertimeModel":
         return cls(
-            id=entity.id,
+            id=entity.id or None,
             user_id=entity.user_id,
             date_=entity.date_,
             start_time=entity.start_time,
@@ -55,8 +55,8 @@ class OvertimeModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
             id=self.id,
             user_id=self.user_id,
             date_=self.date_,
-            start_time=self.start_time,
-            end_time=self.end_time,
+            start_time=self.start_time.replace(tzinfo=None),
+            end_time=self.end_time.replace(tzinfo=None),
             used_hours=self.used_hours,
             description=self.description,
             status=self.status,
