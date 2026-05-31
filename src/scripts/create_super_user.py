@@ -46,33 +46,36 @@ async def create_super_user() -> None:
         org_repo = OrganizationSQLAlchemyRepository(session)
         org = await org_repo.create(
             Organization(
-                name="Главная организация",
-                boss_id=1,
+                name="Невский ГРОЧС",
+                name_genitive="Невского ГРОЧС",
             )
         )
 
         dept_repo = DepartmentSQLAlchemyRepository(session)
         dept = await dept_repo.create(
             Department(
-                name="Главный департамент",
+                name="СНиП",
                 organization_id=org.id,
             )
         )
 
-        user = User.create(
+        created_user = User(
             login=login,
             hashed_password=await hasher.hash(password),
-            surname="",
-            first_name="",
-            patronymic="",
-            position="Системный администратор",
+            surname="Иванов",
+            first_name="Иван",
+            patronymic="Иванович",
+            position="Начальник",
             rank=Rank.PRIVATE,
             role=Role.SUPER_ADMIN,
             work_mode=WorkMode.DAILY,
             department_id=dept.id,
             organization_id=org.id,
         )
-        await user_repo.create(user)
+        await user_repo.create(created_user)
+        org.boss_id = created_user.id
+        await org_repo.update(org)
+
         await session.commit()
         print(f"Суперюзер с логином '{login}' успешно создан")
 
