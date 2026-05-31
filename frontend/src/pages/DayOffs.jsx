@@ -120,7 +120,7 @@ export default function DayOffs() {
           flexWrap: 'wrap',
         }}
       >
-        <span style={{ color: '#64748b', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+        <span style={{ color: '#4a6fa5', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
           Фильтр:
         </span>
         {['', 'pending', 'approved', 'rejected'].map(s => (
@@ -129,7 +129,7 @@ export default function DayOffs() {
             onClick={() => { setStatusFilter(s); setOffset(0) }}
             style={{
               background: statusFilter === s ? 'rgba(200,30,30,0.15)' : 'transparent',
-              border: `1px solid ${statusFilter === s ? '#c81e1e' : '#1e3a5a'}`,
+              border: `1px solid ${statusFilter === s ? '#c81e1e' : 'rgba(42,82,132,0.35)'}`,
               borderRadius: 5,
               padding: '4px 12px',
               color: statusFilter === s ? '#f87171' : '#94a3b8',
@@ -166,7 +166,7 @@ export default function DayOffs() {
                       <Td style={{ fontWeight: 500, color: '#f1f5f9' }}>{d.date_}</Td>
                       <Td><StatusBadge status={d.status} /></Td>
                       <Td style={{ color: '#94a3b8' }}>{d.overtimes?.length || 0}</Td>
-                      <Td style={{ color: '#64748b', fontSize: 12 }}>
+                      <Td style={{ color: '#4a6fa5', fontSize: 12 }}>
                         {d.created_at?.slice(0, 10)}
                       </Td>
                       <Td>
@@ -176,7 +176,7 @@ export default function DayOffs() {
                             disabled={downloading === d.id}
                             style={{
                               background: 'rgba(34,197,94,0.1)',
-                              color: downloading === d.id ? '#64748b' : '#4ade80',
+                              color: downloading === d.id ? '#4a6fa5' : '#4ade80',
                               border: '1px solid rgba(34,197,94,0.25)',
                               borderRadius: 5,
                               padding: '4px 10px',

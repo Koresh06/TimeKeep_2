@@ -19,7 +19,7 @@ function TabBtn({ active, onClick, children }) {
         border: 'none',
         borderBottom: active ? '2px solid #c81e1e' : '2px solid transparent',
         padding: '8px 18px',
-        color: active ? '#f1f5f9' : '#64748b',
+        color: active ? '#f1f5f9' : '#4a6fa5',
         fontSize: 13, fontWeight: active ? 600 : 400,
         cursor: 'pointer', marginBottom: -1, transition: 'all 0.15s',
       }}
@@ -100,7 +100,7 @@ export default function AdminPage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div>
         <PageTitle>Управление организацией</PageTitle>
-        <p style={{ color: '#64748b', fontSize: 12, margin: '4px 0 0' }}>
+        <p style={{ color: '#4a6fa5', fontSize: 12, margin: '4px 0 0' }}>
           Управление сотрудниками, переработками и отгулами
         </p>
       </div>
@@ -115,12 +115,12 @@ export default function AdminPage() {
       {/* Status filter for day-offs */}
       {tab === 'dayoffs' && (
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '10px 14px', background: '#0f1e36', border: '1px solid #1e3a5a', borderRadius: 8, flexWrap: 'wrap' }}>
-          <span style={{ color: '#64748b', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' }}>Статус:</span>
+          <span style={{ color: '#4a6fa5', fontSize: 11, fontWeight: 600, textTransform: 'uppercase' }}>Статус:</span>
           {['', 'pending', 'approved', 'rejected'].map(s => (
             <button key={s} onClick={() => setStatusFilter(s)}
               style={{
                 background: statusFilter === s ? 'rgba(200,30,30,0.15)' : 'transparent',
-                border: `1px solid ${statusFilter === s ? '#c81e1e' : '#1e3a5a'}`,
+                border: `1px solid ${statusFilter === s ? '#c81e1e' : 'rgba(42,82,132,0.35)'}`,
                 borderRadius: 5, padding: '3px 10px',
                 color: statusFilter === s ? '#f87171' : '#94a3b8',
                 fontSize: 11, cursor: 'pointer',
@@ -153,14 +153,14 @@ export default function AdminPage() {
                 <tbody>
                   {users.map(u => (
                     <TRow key={u.id}>
-                      <Td style={{ color: '#64748b', fontSize: 12 }}>{u.id}</Td>
+                      <Td style={{ color: '#4a6fa5', fontSize: 12 }}>{u.id}</Td>
                       <Td style={{ color: '#93c5fd' }}>{u.login}</Td>
                       <Td style={{ color: '#e2e8f0', fontWeight: 500 }}>
                         {[u.surname, u.first_name, u.patronymic].filter(Boolean).join(' ')}
                       </Td>
                       <Td style={{ color: '#94a3b8', fontSize: 12 }}>
                         <div>{u.rank}</div>
-                        <div style={{ color: '#64748b', marginTop: 2 }}>{u.position}</div>
+                        <div style={{ color: '#4a6fa5', marginTop: 2 }}>{u.position}</div>
                       </Td>
                       <Td>
                         <select
@@ -247,12 +247,12 @@ export default function AdminPage() {
                 <tbody>
                   {dayoffs.map(d => (
                     <TRow key={d.id}>
-                      <Td style={{ color: '#64748b', fontSize: 12 }}>{d.id}</Td>
+                      <Td style={{ color: '#4a6fa5', fontSize: 12 }}>{d.id}</Td>
                       <Td style={{ color: '#93c5fd' }}>{d.user_id}</Td>
                       <Td style={{ fontWeight: 500, color: '#f1f5f9' }}>{d.date_}</Td>
                       <Td><StatusBadge status={d.status} /></Td>
                       <Td style={{ color: '#94a3b8' }}>{d.overtimes?.length || 0}</Td>
-                      <Td style={{ color: '#64748b', fontSize: 12 }}>{d.created_at?.slice(0, 10)}</Td>
+                      <Td style={{ color: '#4a6fa5', fontSize: 12 }}>{d.created_at?.slice(0, 10)}</Td>
                     </TRow>
                   ))}
                 </tbody>

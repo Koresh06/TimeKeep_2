@@ -18,7 +18,7 @@ function TabBtn({ active, onClick, children }) {
         border: 'none',
         borderBottom: active ? '2px solid #c81e1e' : '2px solid transparent',
         padding: '8px 18px',
-        color: active ? '#f1f5f9' : '#64748b',
+        color: active ? '#f1f5f9' : '#4a6fa5',
         fontSize: 13,
         fontWeight: active ? 600 : 400,
         cursor: 'pointer',
@@ -103,7 +103,7 @@ export default function ModerationPage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div>
         <PageTitle>Управление отделом</PageTitle>
-        <p style={{ color: '#64748b', fontSize: 12, margin: '4px 0 0' }}>
+        <p style={{ color: '#4a6fa5', fontSize: 12, margin: '4px 0 0' }}>
           Просмотр и модерация данных подразделения
         </p>
       </div>
@@ -129,14 +129,14 @@ export default function ModerationPage() {
             padding: '10px 14px', background: '#0f1e36', border: '1px solid #1e3a5a', borderRadius: 8,
           }}
         >
-          <span style={{ color: '#64748b', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          <span style={{ color: '#4a6fa5', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
             Статус:
           </span>
           {['', 'pending', 'approved', 'rejected'].map(s => (
             <button key={s} onClick={() => setStatusFilter(s)}
               style={{
                 background: statusFilter === s ? 'rgba(200,30,30,0.15)' : 'transparent',
-                border: `1px solid ${statusFilter === s ? '#c81e1e' : '#1e3a5a'}`,
+                border: `1px solid ${statusFilter === s ? '#c81e1e' : 'rgba(42,82,132,0.35)'}`,
                 borderRadius: 5, padding: '3px 10px',
                 color: statusFilter === s ? '#f87171' : '#94a3b8',
                 fontSize: 11, cursor: 'pointer', fontWeight: statusFilter === s ? 600 : 400,
@@ -168,11 +168,11 @@ export default function ModerationPage() {
                 <tbody>
                   {dayoffs.map(d => (
                     <TRow key={d.id}>
-                      <Td style={{ color: '#64748b', fontSize: 12 }}>{d.id}</Td>
+                      <Td style={{ color: '#4a6fa5', fontSize: 12 }}>{d.id}</Td>
                       <Td style={{ color: '#93c5fd' }}>{d.user_id}</Td>
                       <Td style={{ fontWeight: 500, color: '#f1f5f9' }}>{d.date_}</Td>
                       <Td><StatusBadge status={d.status} /></Td>
-                      <Td style={{ color: '#64748b', fontSize: 12 }}>{d.created_at?.slice(0, 10)}</Td>
+                      <Td style={{ color: '#4a6fa5', fontSize: 12 }}>{d.created_at?.slice(0, 10)}</Td>
                       <Td>
                         {d.status === 'pending' && (
                           <div style={{ display: 'flex', gap: 6 }}>
@@ -239,7 +239,7 @@ export default function ModerationPage() {
                         <Td style={{ color: '#94a3b8' }}>{o.end_time?.slice(0, 5)}</Td>
                         <Td style={{ color: '#4ade80', fontWeight: 600 }}>{dur > 0 ? `${dur.toFixed(1)} ч` : '—'}</Td>
                         <Td><StatusBadge status={o.status} /></Td>
-                        <Td style={{ color: '#64748b', fontSize: 12, maxWidth: 160 }}>{o.description || '—'}</Td>
+                        <Td style={{ color: '#4a6fa5', fontSize: 12, maxWidth: 160 }}>{o.description || '—'}</Td>
                       </TRow>
                     )
                   })}
@@ -269,7 +269,7 @@ export default function ModerationPage() {
                 <tbody>
                   {users.map(u => (
                     <TRow key={u.id}>
-                      <Td style={{ color: '#64748b', fontSize: 12 }}>{u.id}</Td>
+                      <Td style={{ color: '#4a6fa5', fontSize: 12 }}>{u.id}</Td>
                       <Td style={{ color: '#93c5fd' }}>{u.login}</Td>
                       <Td style={{ color: '#e2e8f0', fontWeight: 500 }}>
                         {[u.surname, u.first_name, u.patronymic].filter(Boolean).join(' ')}

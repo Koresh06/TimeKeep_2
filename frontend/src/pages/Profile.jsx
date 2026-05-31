@@ -27,7 +27,7 @@ function InfoRow({ label, value }) {
         borderBottom: '1px solid rgba(30,58,90,0.5)',
       }}
     >
-      <span style={{ color: '#64748b', fontSize: 12, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+      <span style={{ color: '#4a6fa5', fontSize: 12, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
         {label}
       </span>
       <span style={{ color: '#e2e8f0', fontSize: 13, fontWeight: 500 }}>
@@ -89,7 +89,7 @@ export default function Profile() {
                 <div style={{ color: '#c81e1e', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: 2 }}>
                   {ROLE_LABELS[user.role] || user.role}
                 </div>
-                <div style={{ color: '#64748b', fontSize: 11, marginTop: 2 }}>
+                <div style={{ color: '#4a6fa5', fontSize: 11, marginTop: 2 }}>
                   @{user.login}
                 </div>
               </div>
@@ -124,17 +124,17 @@ export default function Profile() {
       {tokenData && (
         <Card style={{ padding: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <span style={{ color: '#64748b', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <span style={{ color: '#4a6fa5', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               JWT токен:
             </span>
             <span style={{ color: '#93c5fd', fontSize: 11 }}>
               Роль: <strong>{tokenData.role}</strong>
             </span>
-            <span style={{ color: '#64748b', fontSize: 11 }}>•</span>
+            <span style={{ color: '#4a6fa5', fontSize: 11 }}>•</span>
             <span style={{ color: '#93c5fd', fontSize: 11 }}>
               Отдел ID: <strong>{tokenData.department_id}</strong>
             </span>
-            <span style={{ color: '#64748b', fontSize: 11 }}>•</span>
+            <span style={{ color: '#4a6fa5', fontSize: 11 }}>•</span>
             <span style={{ color: '#93c5fd', fontSize: 11 }}>
               Орг ID: <strong>{tokenData.organization_id}</strong>
             </span>

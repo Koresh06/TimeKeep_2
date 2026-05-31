@@ -20,7 +20,11 @@
 
 body {
   margin: 0;
-  background: #060e1e;
+  background:
+    radial-gradient(ellipse at 10% 0%, rgba(26,75,140,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 90% 80%, rgba(200,30,30,0.05) 0%, transparent 50%),
+    #060e1e;
+  background-attachment: fixed;
   color: #e2e8f0;
   font-family: 'Segoe UI', system-ui, Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -30,25 +34,32 @@ body {
   min-height: 100vh;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* Card hover lift */
+.card-hover {
+  transition: box-shadow 0.2s, transform 0.2s;
 }
-::-webkit-scrollbar-track {
-  background: #0b1526;
-}
-::-webkit-scrollbar-thumb {
-  background: #1e3a5a;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #2a4f78;
+.card-hover:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(40,80,130,0.3);
+  transform: translateY(-1px);
 }
 
-/* Input date/time styling for dark theme */
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #060e1e; }
+::-webkit-scrollbar-thumb { background: #1e3a5a; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #2a4f78; }
+
+/* Input date/time */
 input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="time"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.7);
-  cursor: pointer;
+  filter: invert(0.7); cursor: pointer;
+}
+
+/* Fade-in animation for pages */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: fadeIn 0.2s ease-out;
 }

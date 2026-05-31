@@ -63,7 +63,7 @@ export default function Dashboard() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
         <div>
           <PageTitle>Главная панель</PageTitle>
-          <p style={{ color: '#64748b', fontSize: 12, margin: '4px 0 0' }}>
+          <p style={{ color: '#4a6fa5', fontSize: 12, margin: '4px 0 0' }}>
             {ROLE_LABELS[tokenData?.role] || 'Сотрудник'} ·{' '}
             {WORK_MODE_LABELS[tokenData?.work_mode] || ''}
           </p>
@@ -141,7 +141,7 @@ export default function Dashboard() {
                     <span style={{ color: '#e2e8f0', fontSize: 13, fontWeight: 500 }}>
                       {d.date_}
                     </span>
-                    <div style={{ color: '#64748b', fontSize: 11, marginTop: 1 }}>
+                    <div style={{ color: '#4a6fa5', fontSize: 11, marginTop: 1 }}>
                       {d.overtimes?.length || 0} переработок
                     </div>
                   </div>
@@ -179,7 +179,7 @@ export default function Dashboard() {
                     <span style={{ color: '#e2e8f0', fontSize: 13, fontWeight: 500 }}>
                       {o.date_}
                     </span>
-                    <div style={{ color: '#64748b', fontSize: 11, marginTop: 1 }}>
+                    <div style={{ color: '#4a6fa5', fontSize: 11, marginTop: 1 }}>
                       {o.start_time?.slice(0, 5)} — {o.end_time?.slice(0, 5)}
                     </div>
                   </div>

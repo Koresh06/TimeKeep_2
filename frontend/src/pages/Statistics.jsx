@@ -14,7 +14,7 @@ const MONTHS_RU = ['Янв','Фев','Мар','Апр','Май','Июн','Июл
 function BarChart({ data, height = 140 }) {
   if (!data || !data.length) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: height + 40, color: '#1e3a5a', fontSize: 13 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: height + 40, color: 'rgba(42,82,132,0.35)', fontSize: 13 }}>
         Нет данных
       </div>
     )
@@ -93,7 +93,7 @@ function DonutChart({ segments, size = 160 }) {
   const total = segments.reduce((s, d) => s + d.value, 0)
   if (!total) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: size, color: '#1e3a5a', fontSize: 13 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: size, color: 'rgba(42,82,132,0.35)', fontSize: 13 }}>
         Нет данных
       </div>
     )
@@ -187,7 +187,7 @@ export default function Statistics() {
                 onClick={() => setActiveScope(s.key)}
                 style={{
                   background: activeScope === s.key ? 'rgba(200,30,30,0.15)' : 'transparent',
-                  border: `1px solid ${activeScope === s.key ? '#c81e1e' : '#1e3a5a'}`,
+                  border: `1px solid ${activeScope === s.key ? '#c81e1e' : 'rgba(42,82,132,0.35)'}`,
                   borderRadius: 6,
                   padding: '5px 14px',
                   color: activeScope === s.key ? '#f87171' : '#94a3b8',
@@ -232,11 +232,11 @@ export default function Statistics() {
             {/* Bar chart - monthly hours */}
             <Card style={{ padding: 20 }}>
               <SectionTitle style={{ marginBottom: 4 }}>Переработки по месяцам</SectionTitle>
-              <p style={{ color: '#64748b', fontSize: 11, margin: '0 0 16px' }}>Часов за каждый месяц</p>
+              <p style={{ color: '#4a6fa5', fontSize: 11, margin: '0 0 16px' }}>Часов за каждый месяц</p>
               {monthlyData.length > 0 ? (
                 <BarChart data={monthlyData} height={130} />
               ) : (
-                <div style={{ color: '#1e3a5a', fontSize: 13, textAlign: 'center', padding: '30px 0' }}>
+                <div style={{ color: 'rgba(42,82,132,0.35)', fontSize: 13, textAlign: 'center', padding: '30px 0' }}>
                   Нет данных
                 </div>
               )}
@@ -245,7 +245,7 @@ export default function Statistics() {
             {/* Donut chart - day-off statuses */}
             <Card style={{ padding: 20 }}>
               <SectionTitle style={{ marginBottom: 4 }}>Статусы отгулов</SectionTitle>
-              <p style={{ color: '#64748b', fontSize: 11, margin: '0 0 16px' }}>Распределение по статусам</p>
+              <p style={{ color: '#4a6fa5', fontSize: 11, margin: '0 0 16px' }}>Распределение по статусам</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
                 <DonutChart segments={donutSegments} size={150} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -282,7 +282,7 @@ export default function Statistics() {
                     borderLeft: `2px solid ${item.color}`,
                   }}
                 >
-                  <div style={{ color: '#64748b', fontSize: 11, marginBottom: 4 }}>{item.label}</div>
+                  <div style={{ color: '#4a6fa5', fontSize: 11, marginBottom: 4 }}>{item.label}</div>
                   <div style={{ color: item.color, fontWeight: 700, fontSize: 20 }}>{item.value}</div>
                 </div>
               ))}
