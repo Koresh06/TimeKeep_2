@@ -22,7 +22,7 @@ class DocumentGenerator(IDocumentGenerator):
 
         placeholders = {
             "organization_position_boss": dto.boss_position,
-            "name_organization": dto.organization_name,
+            "name_organization": dto.organization_name_genitive,
             "organization_rank_boss": dto.boss_rank,
             "organization_name_boss": dto.boss_full_name,
             "date_report": dto.date_report,

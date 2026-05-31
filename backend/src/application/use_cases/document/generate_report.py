@@ -57,9 +57,9 @@ class GenerateReportUseCase(UseCase[GenerateReportCommand, bytes]):
         if not organization:
             raise OrganizationNotFoundError(user.organization_id)
 
-        boss = await self.user_repo.get_by_id(organization.boss_id)
-        if not boss:
-            raise UserNotFoundError(organization.boss_id)
+        boss = None
+        if organization.boss_id:
+            boss = await self.user_repo.get_by_id(organization.boss_id)
 
         department = await self.deprtment_repo.get_by_id(user.department_id)
         if not department:

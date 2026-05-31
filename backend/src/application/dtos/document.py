@@ -33,13 +33,21 @@ class DocumentDTO:
         day_off: DayOff,
         user: User,
         organization: Organization,
-        boss: User,
+        boss: User | None,
         department: Department,
     ) -> "DocumentDTO":
+        if boss:
+            boss_position = boss.position
+            boss_rank = boss.rank
+            boss_full_name = f"{boss.surname} {boss.first_name[0]}.{boss.patronymic[0]}."
+        else:
+            boss_position = "Начальник"
+            boss_rank = ""
+            boss_full_name = "_______________"
         return cls(
-            boss_position=boss.position,
-            boss_rank=boss.rank,
-            boss_full_name=f"{boss.surname} {boss.first_name[0]}.{boss.patronymic[0]}.",
+            boss_position=boss_position,
+            boss_rank=boss_rank,
+            boss_full_name=boss_full_name,
             organization_name_genitive=organization.name_genitive,
             date_report=day_off.created_at.strftime("%d.%m.%Y"),
             date_day_off=day_off.date_.strftime("%d.%m.%Y"),
