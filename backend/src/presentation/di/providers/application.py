@@ -81,6 +81,10 @@ from src.application.use_cases.user.update_work_mode import (
     UpdateUserWorkModeCommand,
     UpdateUserWorkModeUseCase,
 )
+from src.application.use_cases.statistics.get_statistics import (
+    GetStatisticsQuery,
+    GetStatisticsUseCase,
+)
 
 
 class ApplicationProvider(Provider):
@@ -119,6 +123,7 @@ class ApplicationProvider(Provider):
     moderate_day_off_use_case = provide(ModerateDayOffUseCase, scope=Scope.REQUEST)
 
     generate_report_use_case = provide(GenerateReportUseCase, scope=Scope.REQUEST)
+    get_statistics_use_case = provide(GetStatisticsUseCase, scope=Scope.REQUEST)
 
     @provide(scope=Scope.REQUEST)
     def get_mediator(
@@ -146,6 +151,7 @@ class ApplicationProvider(Provider):
         take_day_off: TakeDayOffUseCase,
         moderate_day_off: ModerateDayOffUseCase,
         generate_report: GenerateReportUseCase,
+        get_statistics: GetStatisticsUseCase,
     ) -> Mediator:
         mediator = Mediator()
         mediator.register(RegisterUserCommand, register)
@@ -177,5 +183,6 @@ class ApplicationProvider(Provider):
         mediator.register(ModerateDayOffCommand, moderate_day_off)
 
         mediator.register(GenerateReportCommand, generate_report)
+        mediator.register(GetStatisticsQuery, get_statistics)
 
         return mediator
