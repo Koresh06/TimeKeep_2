@@ -73,7 +73,7 @@ export default function Login() {
             background: '#0f1e36',
             border: '1px solid #1e3a5a',
             borderRadius: 12,
-            padding: '28px 28px',
+            padding: '24px 20px',
             boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
           }}
         >

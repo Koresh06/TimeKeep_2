@@ -55,6 +55,49 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   filter: invert(0.7); cursor: pointer;
 }
 
+/* Navbar responsive layout */
+.navbar-inner {
+  max-width: 1520px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+@media (min-width: 640px) { .navbar-inner { padding: 0 24px; } }
+@media (min-width: 1024px) { .navbar-inner { padding: 0 32px; } }
+
+.nav-desktop  { display: none !important; }
+.nav-burger   { display: flex !important; }
+.user-info    { display: none !important; }
+.logo-text    { display: none; }
+
+@media (min-width: 640px) {
+  .logo-text  { display: block; }
+  .user-info  { display: flex !important; }
+}
+@media (min-width: 768px) {
+  .nav-desktop { display: flex !important; }
+  .nav-burger  { display: none !important; }
+}
+
+/* Responsive main content padding */
+.main-content {
+  max-width: 1520px;
+  margin: 0 auto;
+  padding: 16px 16px 40px;
+}
+@media (min-width: 640px) {
+  .main-content { padding: 20px 24px 40px; }
+}
+@media (min-width: 1024px) {
+  .main-content { padding: 24px 32px 40px; }
+}
+
+/* Tighter table cells on mobile */
+@media (max-width: 639px) {
+  .resp-table td, .resp-table th { padding: 8px 10px !important; font-size: 11px !important; }
+  /* Auth card full-width on small screens */
+  .auth-card { padding: 20px 16px !important; }
+}
+
 /* Fade-in animation for pages */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(6px); }

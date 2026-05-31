@@ -322,8 +322,8 @@ export function TableContainer({ children }) {
 
 export function Table({ children }) {
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+    <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+      <table className="resp-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 480 }}>
         {children}
       </table>
     </div>
