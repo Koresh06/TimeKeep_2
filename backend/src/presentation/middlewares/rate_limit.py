@@ -7,8 +7,8 @@ from src.presentation.exceptions.rate_limit import RateLimitExceededException
 
 
 class RateLimitingMiddleware(BaseHTTPMiddleware):
-    rate_limit_duration = timedelta(minutes=2)
-    rate_limit_requests = 100
+    rate_limit_duration = timedelta(minutes=1)
+    rate_limit_requests = 300
 
     def __init__(self, app, **kwargs):
         super().__init__(app)
