@@ -32,15 +32,15 @@ class CreateOvertimeUseCase(UseCase[CreateOvertimeCommand, OvertimeDTO]):
         new_overtime = Overtime(
             user_id=command.user_id,
             date_=command.date_,
-            start_time=command.start_time,
-            end_time=command.end_time,
+            start_time=command.start_time.replace(tzinfo=None),
+            end_time=command.end_time.replace(tzinfo=None),
             description=command.description,
         )
-        
+
         for overtime in overtimes:
             if overtime.overlaps_with(new_overtime):
                 raise OvertimeOverlapError()
-            
+
         result: Overtime = await self.overtime_repo.create(new_overtime)
         await self.transaction_manager.commit()
 

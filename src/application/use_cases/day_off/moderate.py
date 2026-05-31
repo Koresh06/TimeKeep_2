@@ -29,7 +29,7 @@ class ModerateDayOffUseCase(UseCase[ModerateDayOffCommand, None]):
         if not moderate:
             raise UserNotFoundError(command.moderation_id)
         
-        if moderate.role != Role.MODERATOR:
+        if moderate.role not in (Role.MODERATOR, Role.ADMIN, Role.SUPER_ADMIN):
             raise UserNotModeratorError(command.moderation_id)
         
         day_off: DayOff | None = await self.day_off_repo.get_by_id(command.day_off_id)
@@ -39,9 +39,11 @@ class ModerateDayOffUseCase(UseCase[ModerateDayOffCommand, None]):
         worker: User | None = await self.user_repo.get_by_id(day_off.user_id)
         if not worker:
             raise UserNotFoundError(day_off.user_id)
-        if worker.department_id != moderate.department_id:
+        if moderate.role == Role.SUPER_ADMIN:
+            pass
+        elif worker.department_id != moderate.department_id:
             raise DayOffAccessDeniedError()
-    
+
         if command.is_approved:
             day_off.approve()
         else:

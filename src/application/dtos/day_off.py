@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from datetime import date, datetime, time
+from datetime import date, datetime
 
 from src.application.dtos.overtime import OvertimeDTO
 from src.domain.entities.day_off import DayOff
-from src.domain.entities.overtime import Overtime
+
 from src.domain.enums.day_off_status import DayOffStatus
 
 

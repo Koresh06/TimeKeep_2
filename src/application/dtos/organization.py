@@ -8,7 +8,8 @@ from src.domain.entities.organization import Organization
 class OrganizationDTO:
     id: int
     name: str
-    boss_id: int
+    name_genitive: str
+    boss_id: int | None
     created_at: datetime
     updated_at: datetime
 
@@ -17,6 +18,7 @@ class OrganizationDTO:
         return cls(
             id=entity.id,
             name=entity.name,
+            name_genitive=entity.name_genitive,
             boss_id=entity.boss_id,
             created_at=entity.created_at,
             updated_at=entity.updated_at

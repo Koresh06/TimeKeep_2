@@ -28,7 +28,7 @@ class UserDTO:
     @classmethod
     def from_entity(cls, entity: "User") -> "UserDTO":
         return cls(
-            id=entity.id,
+            id=None if entity.id == 0 else entity.id,
             login=entity.login,
             password=entity.hashed_password,
             surname=entity.surname,

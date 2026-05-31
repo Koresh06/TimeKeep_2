@@ -41,7 +41,8 @@ class RegisterUserUseCase(UseCase[RegisterUserCommand, UserDTO]):
         if user_by_login:
             raise UserAlreadyExistsError(command.login)
 
-        user = user = User.create(
+        user = User(
+            id=0,
             **command.to_user_data(),
             hashed_password=await self.hasher.hash(command.password),
         )

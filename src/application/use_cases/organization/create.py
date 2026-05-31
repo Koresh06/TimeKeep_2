@@ -11,6 +11,7 @@ from src.domain.interfaces.transaction_manager import ITransactionManager
 @dataclass(frozen=True, eq=False)
 class CreateOrganizationCommand(UseCaseRequest):
     name: str
+    name_genitive: str
     boss_id: int
 
 
@@ -26,6 +27,7 @@ class CreateOrganizationUseCase(UseCase[CreateOrganizationCommand, OrganizationD
         
         organization = Organization(
             name=command.name,
+            name_genitive=command.name_genitive,
             boss_id=command.boss_id,
         )
         result = await self.organization_repo.create(organization)
