@@ -60,7 +60,10 @@ async def get_all(
             limit=limit,
         )
     )
-    return [OvertimeResponse.model_validate(overtime, from_attributes=True) for overtime in result]
+    return [
+        OvertimeResponse.model_validate(overtime, from_attributes=True)
+        for overtime in result
+    ]
 
 
 @router.get(
@@ -82,7 +85,10 @@ async def get_all_by_organization(
             limit=limit,
         )
     )
-    return [OvertimeResponse.model_validate(overtime, from_attributes=True) for overtime in result]
+    return [
+        OvertimeResponse.model_validate(overtime, from_attributes=True)
+        for overtime in result
+    ]
 
 
 @router.get(
@@ -104,7 +110,10 @@ async def get_all_by_department(
             limit=limit,
         )
     )
-    return [OvertimeResponse.model_validate(overtime, from_attributes=True) for overtime in result]
+    return [
+        OvertimeResponse.model_validate(overtime, from_attributes=True)
+        for overtime in result
+    ]
 
 
 @router.get(
@@ -126,7 +135,10 @@ async def get_all_me(
             limit=limit,
         )
     )
-    return [OvertimeResponse.model_validate(overtime, from_attributes=True) for overtime in result]
+    return [
+        OvertimeResponse.model_validate(overtime, from_attributes=True)
+        for overtime in result
+    ]
 
 
 @router.delete(

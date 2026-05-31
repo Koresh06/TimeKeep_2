@@ -40,6 +40,5 @@ class DepartmentSQLAlchemyRepository(IDepartmentRepository):
         query = query.offset(offset).limit(limit)
         result = await self._session.execute(query)
         return [
-            department_model.to_entity() 
-            for department_model in result.scalars().all()
+            department_model.to_entity() for department_model in result.scalars().all()
         ]

@@ -24,9 +24,7 @@ class DayOffDTO:
             user_id=entity.user_id,
             date_=entity.date_,
             status=entity.status,
-            overtimes=[
-                OvertimeDTO.from_entity(o) for o in entity.overtimes
-            ],
+            overtimes=[OvertimeDTO.from_entity(o) for o in entity.overtimes],
             created_at=entity.created_at,
             updated_at=entity.updated_at,
         )

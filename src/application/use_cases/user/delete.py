@@ -19,13 +19,11 @@ class DeleteUserUseCase(UseCase[DeleteUserRequest, None]):
     transaction_manager: ITransactionManager
     cache: ICache
 
-
     async def __call__(self, request: DeleteUserRequest) -> None:
         user: User | None = await self.user_repository.get_by_id(request.user_id)
         if not user:
             raise UserNotFoundError(request.user_id)
-        
+
         await self.user_repository.delete(request.user_id)
         await self.transaction_manager.commit()
         await self.cache.delete(f"user:{request.user_id}")
-        

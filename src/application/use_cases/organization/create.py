@@ -38,6 +38,3 @@ class CreateOrganizationUseCase(UseCase[CreateOrganizationCommand, OrganizationD
         await self.cache.delete("organizations:offset:0:limit:20")
 
         return OrganizationDTO.from_entity(result)
-
-
-    

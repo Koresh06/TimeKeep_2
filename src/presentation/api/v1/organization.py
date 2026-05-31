@@ -8,8 +8,14 @@ from src.application.use_cases.organization.create import CreateOrganizationComm
 from src.application.use_cases.organization.get_all import GetAllOrganizationQuery
 from src.application.use_cases.organization.get_by_id import GetOrganizationQuery
 from src.presentation.dependencies.auth import UserTokenData
-from src.presentation.schemas.organization import CreateOrganization, OrganizationResponse
-from src.presentation.dependencies.permission import get_require_admin, get_require_super_admin
+from src.presentation.schemas.organization import (
+    CreateOrganization,
+    OrganizationResponse,
+)
+from src.presentation.dependencies.permission import (
+    get_require_admin,
+    get_require_super_admin,
+)
 
 
 router = APIRouter(prefix="/organizations", tags=["organization"])
@@ -26,7 +32,9 @@ async def create(
     mediator: FromDishka[Mediator],
     current_user: UserTokenData = Depends(get_require_super_admin()),
 ) -> OrganizationResponse:
-    result: OrganizationDTO = await mediator.handle(CreateOrganizationCommand(**data.model_dump()))
+    result: OrganizationDTO = await mediator.handle(
+        CreateOrganizationCommand(**data.model_dump())
+    )
     return OrganizationResponse.model_validate(result.__dict__)
 
 
@@ -64,8 +72,6 @@ async def get_all(
         )
     )
     return [
-        OrganizationResponse.model_validate(organization.__dict__) 
+        OrganizationResponse.model_validate(organization.__dict__)
         for organization in result
     ]
-
-

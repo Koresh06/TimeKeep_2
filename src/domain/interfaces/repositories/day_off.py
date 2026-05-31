@@ -17,8 +17,7 @@ class IDayOffRepository(Protocol):
         date_: date | None = None,
         offset: int = 0,
         limit: int = 20,
-    ) -> list[DayOff]:
-        ...
+    ) -> list[DayOff]: ...
 
     async def create(self, day_off: DayOff) -> DayOff: ...
 

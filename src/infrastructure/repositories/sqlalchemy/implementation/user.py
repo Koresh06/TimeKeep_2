@@ -21,7 +21,7 @@ class UserSQLAlchemyRepository(IUserRepository):
         result = await self._session.execute(query)
         user_model = result.scalar_one_or_none()
         return user_model.to_entity() if user_model else None
-    
+
     async def get_all(
         self,
         department_id: int | None = None,
@@ -36,10 +36,7 @@ class UserSQLAlchemyRepository(IUserRepository):
             query = query.where(UserModel.organization_id == organization_id)
         query = query.offset(offset).limit(limit)
         result = await self._session.execute(query)
-        return [
-            user_model.to_entity() 
-            for user_model in result.scalars().all()
-        ]
+        return [user_model.to_entity() for user_model in result.scalars().all()]
 
     async def create(self, user: User) -> User:
         user_model = UserModel.from_entity(user)

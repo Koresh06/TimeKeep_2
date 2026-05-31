@@ -3,7 +3,11 @@ from dataclasses import dataclass
 from src.application.use_cases.base import UseCase, UseCaseRequest
 from src.domain.entities.overtime import Overtime
 from src.domain.enums.overtime_status import OvertimeStatus
-from src.domain.exceptions.overtime import AccessDeniedError, OvertimeAlreadyUsedError, OvertimeNotFoundError
+from src.domain.exceptions.overtime import (
+    AccessDeniedError,
+    OvertimeAlreadyUsedError,
+    OvertimeNotFoundError,
+)
 from src.domain.interfaces.repositories.overtime import IOvertimeRepository
 from src.domain.interfaces.transaction_manager import ITransactionManager
 
@@ -31,4 +35,3 @@ class DeleteOvertimeUseCase(UseCase[DeleteOvertimeRequest, None]):
 
         await self.overtime_repository.delete(request.id)
         await self.transaction_manager.commit()
-

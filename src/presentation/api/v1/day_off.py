@@ -12,7 +12,11 @@ from src.application.dtos.day_off import DayOffDTO
 from src.application.use_cases.day_off.get_all import GetAllDayOffsQuery
 from src.application.use_cases.day_off.take import TakeDayOffCommand
 from src.presentation.dependencies.auth import UserTokenData
-from src.presentation.schemas.day_off import CreateDayOff, DayOffResponse, ModerateDayOff
+from src.presentation.schemas.day_off import (
+    CreateDayOff,
+    DayOffResponse,
+    ModerateDayOff,
+)
 from src.presentation.dependencies.permission import (
     get_require_admin,
     get_require_moderator,
@@ -61,7 +65,10 @@ async def get_all_me(
             status=status,
         )
     )
-    return [DayOffResponse.model_validate(day_off, from_attributes=True) for day_off in result]
+    return [
+        DayOffResponse.model_validate(day_off, from_attributes=True)
+        for day_off in result
+    ]
 
 
 @router.get(
@@ -81,7 +88,10 @@ async def get_all_by_department(
             status=status,
         )
     )
-    return [DayOffResponse.model_validate(day_off, from_attributes=True) for day_off in result]
+    return [
+        DayOffResponse.model_validate(day_off, from_attributes=True)
+        for day_off in result
+    ]
 
 
 @router.get(
@@ -101,7 +111,10 @@ async def get_all_by_organization(
             status=status,
         )
     )
-    return [DayOffResponse.model_validate(day_off, from_attributes=True) for day_off in result]
+    return [
+        DayOffResponse.model_validate(day_off, from_attributes=True)
+        for day_off in result
+    ]
 
 
 @router.get(
@@ -120,7 +133,10 @@ async def get_all_by_super_admin(
             status=status,
         )
     )
-    return [DayOffResponse.model_validate(day_off, from_attributes=True) for day_off in result]
+    return [
+        DayOffResponse.model_validate(day_off, from_attributes=True)
+        for day_off in result
+    ]
 
 
 @router.patch(

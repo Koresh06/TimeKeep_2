@@ -50,4 +50,3 @@ class RegisterUserUseCase(UseCase[RegisterUserCommand, UserDTO]):
         await self.transaction_manager.commit()
 
         return UserDTO.from_entity(result)
-

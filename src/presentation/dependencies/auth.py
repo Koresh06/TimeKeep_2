@@ -41,7 +41,7 @@ class GetCurrentUser:
             )
         except JWTError:
             raise HTTPException(status_code=401, detail="Невалидный токен")
-        
+
 
 @lru_cache
 def get_current_user() -> GetCurrentUser:

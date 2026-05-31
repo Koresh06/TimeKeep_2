@@ -16,7 +16,7 @@ class OvertimeInMemoryRepository(IOvertimeRepository):
         return self._items.get(id)
 
     async def get_all(
-        self,  
+        self,
         user_id: int | None = None,
         department_id: int | None = None,
         organization_id: int | None = None,
@@ -33,7 +33,7 @@ class OvertimeInMemoryRepository(IOvertimeRepository):
             items = [d for d in items if d.status == status]
         if date_ is not None:
             items = [d for d in items if d.date_ == date_]
-        return items[offset:offset + limit]
+        return items[offset : offset + limit]
 
     async def create(self, overtime: Overtime) -> Overtime:
         overtime.id = self._ids.next()

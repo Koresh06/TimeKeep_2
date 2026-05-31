@@ -35,7 +35,6 @@ class OrganizationInMemoryRepository(IOrganizationRepository):
         self._items[organization.id] = organization
         return organization
 
-
     async def update(self, organization: Organization) -> Organization:
         self._items[organization.id] = organization
         return organization

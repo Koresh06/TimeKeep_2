@@ -13,7 +13,9 @@ class GetAllOrganizationQuery(UseCaseRequest):
 
 
 @dataclass(kw_only=True)
-class GetAllOrganizationUseCase(UseCase[GetAllOrganizationQuery, list[OrganizationDTO]]):
+class GetAllOrganizationUseCase(
+    UseCase[GetAllOrganizationQuery, list[OrganizationDTO]]
+):
     organization_repo: IOrganizationRepository
     cache: ICache
 

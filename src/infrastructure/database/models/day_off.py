@@ -24,12 +24,13 @@ class DayOffModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
         default=DayOffStatus.PENDING,
     )
     user: Mapped["UserModel"] = relationship(back_populates="day_offs")
-    day_off_overtimes: Mapped[list["DayOffOvertimeModel"]] = relationship(back_populates="day_off")
-
+    day_off_overtimes: Mapped[list["DayOffOvertimeModel"]] = relationship(
+        back_populates="day_off"
+    )
 
     def __repr__(self):
         return f"DayOff({self.id}, {self.user_id}, {self.date_}, {self.status})"
-    
+
     @classmethod
     def from_entity(cls, entity: "DayOff") -> "DayOffModel":
         return cls(
@@ -40,7 +41,7 @@ class DayOffModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
             created_at=entity.created_at,
             updated_at=entity.updated_at,
         )
-    
+
     def to_entity(self) -> DayOff:
         return DayOff(
             id=self.id,
@@ -49,7 +50,5 @@ class DayOffModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
             status=self.status,
             created_at=self.created_at,
             updated_at=self.updated_at,
-            overtimes=[
-                o.overtime.to_entity() for o in self.day_off_overtimes
-            ],
+            overtimes=[o.overtime.to_entity() for o in self.day_off_overtimes],
         )

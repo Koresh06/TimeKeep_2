@@ -20,7 +20,6 @@ class UpdateUserWorkModeUseCase(UseCase[UpdateUserWorkModeCommand, None]):
     transaction_manager: ITransactionManager
     cache: ICache
 
-
     async def __call__(self, command: UpdateUserWorkModeCommand) -> None:
         user = await self.user_repo.get_by_id(command.user_id)
         if not user:

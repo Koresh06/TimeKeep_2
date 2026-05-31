@@ -6,6 +6,7 @@ from src.domain.entities.overtime import Overtime
 from src.domain.exceptions.overtime import OvertimeNotFoundError
 from src.domain.interfaces.repositories.overtime import IOvertimeRepository
 
+
 @dataclass(frozen=True, eq=False)
 class GetByIdOvertimeQuery(UseCaseQuery):
     id: int

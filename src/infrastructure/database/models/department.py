@@ -22,10 +22,8 @@ class DepartmentModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
 
     users: Mapped[list["UserModel"]] = relationship(back_populates="department")
 
-
     def __repr__(self) -> str:
         return f"Department(id={self.id!r}, name={self.name!r}, organization_id={self.organization_id!r})"
-
 
     @classmethod
     def from_entity(cls, entity: "Department") -> "DepartmentModel":
@@ -34,7 +32,7 @@ class DepartmentModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
             name=entity.name,
             organization_id=entity.organization_id,
         )
-    
+
     def to_entity(self) -> "Department":
         return Department(
             id=self.id,

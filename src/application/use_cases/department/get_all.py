@@ -20,11 +20,11 @@ class GetAllDepartmentUseCase(UseCase[GetAllDepartmentQuery, list[DepartmentDTO]
 
     async def __call__(self, query: GetAllDepartmentQuery) -> list[DepartmentDTO]:
         cache_key = f"departments:org:{query.organization_id}:offset:{query.offset}:limit:{query.limit}"
-        
+
         cached = await self.cache.get(cache_key)
         if cached:
             return [DepartmentDTO(**d) for d in cached]
-        
+
         result = await self.department_repo.get_all(
             organization_id=query.organization_id,
             offset=query.offset,

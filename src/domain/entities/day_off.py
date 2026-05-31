@@ -28,5 +28,3 @@ class DayOff(BaseEntity):
 
     def format_overtimes_for_document(self) -> str:
         return "; ".join([o.format_for_document() for o in self.overtimes])
-
-   

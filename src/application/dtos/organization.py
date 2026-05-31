@@ -21,5 +21,5 @@ class OrganizationDTO:
             name_genitive=entity.name_genitive,
             boss_id=entity.boss_id,
             created_at=entity.created_at,
-            updated_at=entity.updated_at
+            updated_at=entity.updated_at,
         )

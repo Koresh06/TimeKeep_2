@@ -7,17 +7,20 @@ class OvertimeOverlapError(TimeKeepError):
     def __init__(self) -> None:
         super().__init__("Переработка частично совпадает с существующей")
 
+
 class AccessDeniedError(TimeKeepError):
     """Ошибка доступа"""
 
     def __init__(self) -> None:
         super().__init__("Доступ запрещен")
 
+
 class OvertimeAlreadyUsedError(TimeKeepError):
     """Ошибка использования переработки"""
 
     def __init__(self) -> None:
         super().__init__("Переработка уже использована")
+
 
 class OvertimeNotFoundError(TimeKeepError):
     """Ошибка поиска переработки"""

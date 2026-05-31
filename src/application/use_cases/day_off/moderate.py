@@ -28,14 +28,14 @@ class ModerateDayOffUseCase(UseCase[ModerateDayOffCommand, None]):
         moderate: User | None = await self.user_repo.get_by_id(command.moderation_id)
         if not moderate:
             raise UserNotFoundError(command.moderation_id)
-        
+
         if moderate.role not in (Role.MODERATOR, Role.ADMIN, Role.SUPER_ADMIN):
             raise UserNotModeratorError(command.moderation_id)
-        
+
         day_off: DayOff | None = await self.day_off_repo.get_by_id(command.day_off_id)
         if not day_off:
             raise DayOffNotFoundError(command.day_off_id)
-        
+
         worker: User | None = await self.user_repo.get_by_id(day_off.user_id)
         if not worker:
             raise UserNotFoundError(day_off.user_id)
@@ -48,8 +48,6 @@ class ModerateDayOffUseCase(UseCase[ModerateDayOffCommand, None]):
             day_off.approve()
         else:
             day_off.reject()
-        
+
         await self.day_off_repo.update(day_off)
         await self.transaction_manager.commit()
-        
-        

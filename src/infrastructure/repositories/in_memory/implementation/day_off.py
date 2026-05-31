@@ -33,7 +33,7 @@ class DayOffInMemoryRepository(IDayOffRepository):
             items = [d for d in items if d.status == status]
         if date_ is not None:
             items = [d for d in items if d.date_ == date_]
-        return items[offset:offset + limit]
+        return items[offset : offset + limit]
 
     async def create(self, day_off: DayOff) -> DayOff:
         day_off.id = self._ids.next()

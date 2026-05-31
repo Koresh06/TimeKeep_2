@@ -33,8 +33,10 @@ async def login(
     mediator: FromDishka[Mediator],
     data: OAuth2PasswordRequestForm = Depends(),
 ):
-    result = await mediator.handle(LoginCommand(
-        login=data.username,
-        password=data.password,
-    ))
+    result = await mediator.handle(
+        LoginCommand(
+            login=data.username,
+            password=data.password,
+        )
+    )
     return TokenResponse.model_validate(result.__dict__)

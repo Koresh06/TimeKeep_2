@@ -38,7 +38,9 @@ async def get_me(
     mediator: FromDishka[Mediator],
     current_user: UserTokenData = Depends(get_require_user()),
 ) -> UserResponse:
-    result: UserDTO = await mediator.handle(GetUserByIdQuery(user_id=current_user.user_id))
+    result: UserDTO = await mediator.handle(
+        GetUserByIdQuery(user_id=current_user.user_id)
+    )
     return UserResponse.model_validate(result.__dict__)
 
 

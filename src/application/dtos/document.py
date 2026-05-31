@@ -12,15 +12,15 @@ class DocumentDTO:
     boss_position: str
     boss_rank: str
     boss_full_name: str
-    
+
     # данные организации
     organization_name_genitive: str
-    
+
     # данные отгула
     date_report: str
     date_day_off: str
     info_overtimes: str
-    
+
     # данные сотрудника
     position_user: str
     department_user: str

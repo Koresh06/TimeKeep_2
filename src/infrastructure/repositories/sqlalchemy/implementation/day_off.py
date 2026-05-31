@@ -21,8 +21,9 @@ class DayOffSQLAlchemyRepository(IDayOffRepository):
             select(DayOffModel)
             .where(DayOffModel.id == day_off_id)
             .options(
-                selectinload(DayOffModel.day_off_overtimes)
-                .selectinload(DayOffOvertimeModel.overtime)
+                selectinload(DayOffModel.day_off_overtimes).selectinload(
+                    DayOffOvertimeModel.overtime
+                )
             )
         )
         day_off_model = result.scalar_one_or_none()

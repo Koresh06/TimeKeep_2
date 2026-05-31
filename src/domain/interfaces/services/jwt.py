@@ -2,7 +2,6 @@ from datetime import timedelta
 from typing import Protocol
 
 
-
 class IJWTService(Protocol):
     async def create_access_token(
         self,

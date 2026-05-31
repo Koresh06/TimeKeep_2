@@ -31,10 +31,10 @@ class DepartmentInMemoryRepository(IDepartmentRepository):
     async def get_all(
         self,
         organization_id: int | None = None,
-        offset: int = 0, 
+        offset: int = 0,
         limit: int = 20,
     ) -> list[Department]:
         items = list(self._items.values())
         if organization_id is not None:
             items = [d for d in items if d.organization_id == organization_id]
-        return items[offset:offset + limit]
+        return items[offset : offset + limit]

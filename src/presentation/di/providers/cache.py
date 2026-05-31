@@ -7,7 +7,6 @@ from src.infrastructure.cache.redis import RedisCache
 
 
 class CacheProvider(Provider):
-
     @provide(scope=Scope.APP)
     def get_redis_client(self, settings: RedisSettings) -> Redis:
         return Redis.from_url(settings.url)

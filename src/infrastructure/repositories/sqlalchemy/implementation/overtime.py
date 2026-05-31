@@ -36,17 +36,18 @@ class OvertimeSQLAlchemyRepository(IOvertimeRepository):
         if status:
             query = query.where(OvertimeModel.status == status)
         if department_id:
-            query = query.join(UserModel).where(UserModel.department_id == department_id)
+            query = query.join(UserModel).where(
+                UserModel.department_id == department_id
+            )
         if organization_id:
-            query = query.join(UserModel).where(UserModel.organization_id == organization_id)
+            query = query.join(UserModel).where(
+                UserModel.organization_id == organization_id
+            )
         if date_:
             query = query.where(OvertimeModel.date_ == date_)
         query = query.offset(offset).limit(limit)
         result = await self._session.execute(query)
-        return [
-            overtime_model.to_entity() 
-            for overtime_model in result.scalars().all()
-        ]
+        return [overtime_model.to_entity() for overtime_model in result.scalars().all()]
 
     async def create(self, overtime: Overtime) -> Overtime:
         overtime_model = OvertimeModel.from_entity(overtime)

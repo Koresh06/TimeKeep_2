@@ -19,5 +19,5 @@ class DepartmentDTO:
             name=entity.name,
             organization_id=entity.organization_id,
             created_at=entity.created_at,
-            updated_at=entity.updated_at
+            updated_at=entity.updated_at,
         )

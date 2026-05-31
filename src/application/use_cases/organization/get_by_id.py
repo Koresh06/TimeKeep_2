@@ -6,6 +6,7 @@ from src.domain.exceptions.organization import OrganizationNotFoundError
 from src.domain.interfaces.cache import ICache
 from src.domain.interfaces.repositories.organization import IOrganizationRepository
 
+
 @dataclass(frozen=True, eq=False)
 class GetOrganizationQuery(UseCaseRequest):
     id: int

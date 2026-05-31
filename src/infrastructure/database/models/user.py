@@ -47,10 +47,8 @@ class UserModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
     overtimes: Mapped[list["OvertimeModel"]] = relationship(back_populates="user")
     day_offs: Mapped[list["DayOffModel"]] = relationship(back_populates="user")
 
-
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, login={self.login!r}, role={self.role!r}, rank={self.rank!r}, work_mode={self.work_mode!r}, department_id={self.department_id!r}, organization_id={self.organization_id!r})"
-
 
     @classmethod
     def from_entity(cls, entity: "User") -> "UserModel":
@@ -69,7 +67,7 @@ class UserModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
             organization_id=entity.organization_id,
             is_active=entity.is_active,
         )
-    
+
     def to_entity(self) -> User:
         return User(
             id=self.id,

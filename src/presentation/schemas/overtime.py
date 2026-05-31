@@ -10,7 +10,6 @@ class OvertimeBase(BaseModel):
     start_time: time
     end_time: time
     description: str
-    
 
 
 class CreateOvertime(OvertimeBase):

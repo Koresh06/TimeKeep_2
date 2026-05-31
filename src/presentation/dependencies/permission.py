@@ -3,7 +3,7 @@ from functools import lru_cache
 from fastapi import Depends, HTTPException
 
 from src.domain.enums.role import Role
-from src.presentation.dependencies.auth import  UserTokenData, get_current_user
+from src.presentation.dependencies.auth import UserTokenData, get_current_user
 
 
 ROLE_HIERARCHY = {
@@ -12,6 +12,7 @@ ROLE_HIERARCHY = {
     Role.ADMIN: 2,
     Role.SUPER_ADMIN: 3,
 }
+
 
 class RequireRole:
     def __init__(self, min_role: Role) -> None:
@@ -24,19 +25,22 @@ class RequireRole:
         if ROLE_HIERARCHY[current_user.role] < ROLE_HIERARCHY[self.min_role]:
             raise HTTPException(status_code=403, detail="Нет доступа")
         return current_user
-    
-    
+
+
 @lru_cache
 def get_require_user() -> RequireRole:
     return RequireRole(Role.USER)
+
 
 @lru_cache
 def get_require_moderator() -> RequireRole:
     return RequireRole(Role.MODERATOR)
 
+
 @lru_cache
 def get_require_admin() -> RequireRole:
     return RequireRole(Role.ADMIN)
+
 
 @lru_cache
 def get_require_super_admin() -> RequireRole:

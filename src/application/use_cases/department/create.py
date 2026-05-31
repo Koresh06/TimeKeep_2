@@ -23,7 +23,7 @@ class CreateDepartmentUseCase(UseCase[CreateDepartmentCommand, DepartmentDTO]):
         department_by_name = await self.department_repo.get_by_name(command.name)
         if department_by_name:
             raise DepartmentAlreadyExistsError(command.name)
-        
+
         result: Department = await self.department_repo.create(
             Department(
                 name=command.name,

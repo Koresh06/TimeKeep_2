@@ -21,7 +21,5 @@ class DayOffOvertimeModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
     day_off: Mapped["DayOffModel"] = relationship(back_populates="day_off_overtimes")
     overtime: Mapped["OvertimeModel"] = relationship(back_populates="day_off_overtimes")
 
-
     def __repr__(self):
         return f"DayOffOvertimeModel(id={self.id}, day_off_id={self.day_off_id}, overtime_id={self.overtime_id}, used_hours={self.used_hours})"
-    

@@ -42,7 +42,6 @@ from src.infrastructure.services.jwt import JWTService
 
 
 class InfrastructureProvider(Provider):
-
     @provide(scope=Scope.APP)
     def get_engine(self, db: PostgresSettings) -> AsyncEngine:
         return create_async_engine(db.url)
@@ -92,7 +91,6 @@ class InfrastructureProvider(Provider):
         scope=Scope.REQUEST,
         provides=ITransactionManager,
     )
-    
 
     # services
     @provide(scope=Scope.APP, provides=IPasswordHasher)

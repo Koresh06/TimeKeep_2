@@ -29,8 +29,9 @@ class OvertimeModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
     )
 
     user: Mapped["UserModel"] = relationship(back_populates="overtimes")
-    day_off_overtimes: Mapped[list["DayOffOvertimeModel"]] = relationship(back_populates="overtime")
-
+    day_off_overtimes: Mapped[list["DayOffOvertimeModel"]] = relationship(
+        back_populates="overtime"
+    )
 
     def __repr__(self):
         return f"Overtime({self.id}, {self.user_id}, {self.date_}, {self.start_time}, {self.end_time}, {self.used_hours}, {self.description}, {self.status})"
@@ -49,7 +50,7 @@ class OvertimeModel(BaseModel, CreatedAtMixin, UpdatedAtMixin):
             created_at=entity.created_at,
             updated_at=entity.updated_at,
         )
-    
+
     def to_entity(self) -> Overtime:
         return Overtime(
             id=self.id,

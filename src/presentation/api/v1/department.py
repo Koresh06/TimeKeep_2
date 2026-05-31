@@ -8,7 +8,11 @@ from src.application.use_cases.department.get_all import GetAllDepartmentQuery
 from src.application.use_cases.department.get_by_id import GetDepartmentQuery
 from src.presentation.dependencies.auth import UserTokenData
 from src.presentation.schemas.department import CreateDepartment, DepartmentResponse
-from src.presentation.dependencies.permission import get_require_super_admin, get_require_admin, get_require_moderator
+from src.presentation.dependencies.permission import (
+    get_require_super_admin,
+    get_require_admin,
+    get_require_moderator,
+)
 
 
 router = APIRouter(prefix="/departments", tags=["department"])
@@ -62,6 +66,7 @@ async def get_all_by_organization(
             limit=limit,
         )
     )
+
 
 @router.get(
     "",

@@ -11,14 +11,13 @@ from src.presentation.exception_handlers import register_exception_handlers
 from src.presentation.middlewares.rate_limit import RateLimitingMiddleware
 
 
-
 def create_app() -> FastAPI:
     if settings.app.sentry_dsn:
         sentry_sdk.init(
             dsn=settings.app.sentry_dsn,
             traces_sample_rate=0.1,
         )
-        
+
     app = FastAPI(
         title="Timekeep API",
         description="API for timekeeping",

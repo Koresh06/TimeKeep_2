@@ -5,8 +5,10 @@ from typing import Generic, TypeVar
 class UseCaseInput(ABC):
     pass
 
+
 class UseCaseRequest(UseCaseInput):
     pass
+
 
 class UseCaseQuery(UseCaseInput):
     pass

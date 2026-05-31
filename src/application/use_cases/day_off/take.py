@@ -8,7 +8,10 @@ from src.domain.entities.overtime import Overtime
 from src.domain.entities.user import User
 from src.domain.enums.day_off_status import DayOffStatus
 from src.domain.enums.overtime_status import OvertimeStatus
-from src.domain.exceptions.day_off import DayOffAlreadyExistsForDateError, DayOffInvalidDateError
+from src.domain.exceptions.day_off import (
+    DayOffAlreadyExistsForDateError,
+    DayOffInvalidDateError,
+)
 from src.domain.interfaces.repositories.overtime import IOvertimeRepository
 from src.domain.value_objects.work_schedule import WorkSchedule
 from src.domain.exceptions.user import UserNotFoundError
@@ -33,18 +36,18 @@ class TakeDayOffUseCase(UseCase[TakeDayOffCommand, DayOffDTO]):
     async def __call__(self, command: TakeDayOffCommand) -> DayOffDTO:
         if command.date_ < date.today():
             raise DayOffInvalidDateError()
-    
+
         user: User | None = await self.user_repo.get_by_id(command.user_id)
         if not user:
             raise UserNotFoundError(command.user_id)
-        
+
         existing: list[DayOff] = await self.day_off_repo.get_all(
             user_id=command.user_id,
             date_=command.date_,
         )
         if existing:
             raise DayOffAlreadyExistsForDateError()
-        
+
         schedule = WorkSchedule(user.work_mode)
         overtimes: list[Overtime] = await self.overtime_repo.get_all(
             user_id=command.user_id,
@@ -58,7 +61,7 @@ class TakeDayOffUseCase(UseCase[TakeDayOffCommand, DayOffDTO]):
             status=DayOffStatus.PENDING,
             overtimes=selected,
         )
-        
+
         for overtime in selected:
             overtime.mark_as_used()
             await self.overtime_repo.update(overtime)
