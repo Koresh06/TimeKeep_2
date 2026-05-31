@@ -91,5 +91,6 @@ venv.bak/
 cache/
 ngrok.yml
 my_database.db
-.env/
+.env
+.env.db
 README-logic.md
