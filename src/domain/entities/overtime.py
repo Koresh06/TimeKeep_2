@@ -28,5 +28,10 @@ class Overtime(BaseEntity):
             return False
         return self.start_time < other.end_time and self.end_time > other.start_time
     
+    def mark_as_used(self) -> None:
+        if self.available_hours() == 0:
+            self.status = OvertimeStatus.USED
+            self.touch()
+    
     def format_for_document(self):
         return f"{self.date_.strftime('%d.%m.%Y')} - {self.description} ({self.duration_hours():.0f} ч.)"

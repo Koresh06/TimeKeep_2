@@ -20,36 +20,6 @@ class User(BaseEntity):
     department_id: int
     organization_id: int
     is_active: bool = field(default=True)
-
-
-    @classmethod
-    def create(
-        cls,
-        login: str,
-        hashed_password: str,
-        surname: str,
-        first_name: str,
-        patronymic: str,
-        position: str,
-        role: Role,
-        rank: Rank,
-        work_mode: WorkMode,
-        department_id: int,
-        organization_id: int,
-    ) -> "User":
-        return cls(
-            login=login,
-            hashed_password=hashed_password,
-            surname=surname,
-            first_name=first_name,
-            patronymic=patronymic,
-            position=position,
-            role=role,
-            rank=rank,
-            work_mode=work_mode,
-            department_id=department_id,
-            organization_id=organization_id,
-        )
     
     def change_role(self, role: Role) -> None:
         self.role = role

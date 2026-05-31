@@ -35,3 +35,13 @@ class DayOffNotApprovedError(TimeKeepError):
 class DayOffAccessDeniedError(TimeKeepError):
     def __init__(self) -> None:
         super().__init__("Нет доступа к данной заявке на отгул.")
+
+
+class DayOffInvalidDateError(TimeKeepError):
+    def __init__(self) -> None:
+        super().__init__("Дата отгула не может быть в прошлом.")
+
+
+class DayOffAlreadyExistsForDateError(TimeKeepError):
+    def __init__(self) -> None:
+        super().__init__("На эту дату уже есть заявка на отгул.")
