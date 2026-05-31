@@ -30,7 +30,7 @@ async def test_successful_create_overtime(
     )
     await use_case(command)
 
-    overtimes = await overtime_repo.get_all_by_user_id(created_user.id)
+    overtimes = await overtime_repo.get_all(user_id=created_user.id)
     assert len(overtimes) == 1
 
     assert overtimes[0].user_id == created_user.id
@@ -90,6 +90,6 @@ async def test_two_overtime_jobs_in_one_day_without_overlap(
     await use_case(command_1)
     await use_case(command_2)
     
-    overtimes = await overtime_repo.get_all_by_user_id(created_user.id)
+    overtimes = await overtime_repo.get_all(user_id=created_user.id)
     assert len(overtimes) == 2
     

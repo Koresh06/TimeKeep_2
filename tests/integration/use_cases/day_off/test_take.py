@@ -23,7 +23,7 @@ async def test_take_day_off(
 ):
     command = TakeDayOffCommand(
         user_id=created_user.id,
-        date_=date(2023, 1, 10),
+        date_=date.today(),
     )
     use_case = TakeDayOffUseCase(
         user_repo=user_repo,
@@ -33,7 +33,7 @@ async def test_take_day_off(
     )
     await use_case(command)
     
-    day_offs = await day_off_repo.get_all_by_user_id(created_user.id)
+    day_offs = await day_off_repo.get_all(user_id=created_user.id)
     assert len(day_offs) == 1
     assert day_offs[0].status == DayOffStatus.PENDING
 
@@ -48,7 +48,7 @@ async def test_take_day_off_not_enough_hours(
 ):
     command = TakeDayOffCommand(
         user_id=created_user.id,
-        date_=date(2023, 1, 10),
+        date_=date.today(),
     )
     use_case = TakeDayOffUseCase(
         user_repo=user_repo,
@@ -68,7 +68,7 @@ async def test_take_day_off_user_not_found(
 ):
     command = TakeDayOffCommand(
         user_id=1,
-        date_=date(2023, 1, 10),
+        date_=date.today(),
     )
     use_case = TakeDayOffUseCase(
         user_repo=user_repo,

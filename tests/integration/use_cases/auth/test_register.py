@@ -60,7 +60,11 @@ async def test_already_exists_user(
         organization_id=1,
     )
     await user_repo.create(
-        User.create(**command.to_user_data(), hashed_password="hash"),
+        user = User(
+            id=0,
+            **command.to_user_data(),
+            hashed_password=await hasher.hash(command.password),
+        )
     )
     use_case = RegisterUserUseCase(
         user_repo=user_repo,

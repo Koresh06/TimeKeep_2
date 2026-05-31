@@ -1,7 +1,7 @@
 import pytest
 from datetime import date
 
-from src.application.use_cases.day_off.moderate import ModerateDauOffUseCase, ModerateDoyOffCommand
+from src.application.use_cases.day_off.moderate import ModerateDayOffUseCase, ModerateDayOffCommand
 from src.domain.entities.day_off import DayOff
 from src.domain.entities.user import User
 from src.domain.enums.day_off_status import DayOffStatus
@@ -19,13 +19,13 @@ async def test_successful_confirmation_day_off(
     day_off_repo: IDayOffRepository,
     transaction_manager: ITransactionManager,
 ):
-    use_case = ModerateDauOffUseCase(
+    use_case = ModerateDayOffUseCase(
         user_repo=user_repo,
         day_off_repo=day_off_repo,
         transaction_manager=transaction_manager,
 
     )
-    command = ModerateDoyOffCommand(
+    command = ModerateDayOffCommand(
         day_off_id=created_day_off.id,
         moderation_id=created_moderator.id,
         is_approved=True
@@ -44,12 +44,12 @@ async def test_application_rejection_day_off(
     day_off_repo: IDayOffRepository,
     transaction_manager: ITransactionManager,
 ):
-    use_case = ModerateDauOffUseCase(
+    use_case = ModerateDayOffUseCase(
         user_repo=user_repo,
         day_off_repo=day_off_repo,
         transaction_manager=transaction_manager,
     )
-    command = ModerateDoyOffCommand(
+    command = ModerateDayOffCommand(
         day_off_id=created_day_off.id,
         moderation_id=created_moderator.id,
         is_approved=False
@@ -67,12 +67,12 @@ async def test_not_fount_moderator(
     day_off_repo: IDayOffRepository,
     transaction_manager: ITransactionManager,
 ):
-    use_case = ModerateDauOffUseCase(
+    use_case = ModerateDayOffUseCase(
         user_repo=user_repo,
         day_off_repo=day_off_repo,
         transaction_manager=transaction_manager,
     )
-    command = ModerateDoyOffCommand(
+    command = ModerateDayOffCommand(
         day_off_id=created_day_off.id,
         moderation_id=2,
         is_approved=True
@@ -88,12 +88,12 @@ async def test_not_role_moderator_user_moderate_day_off(
     day_off_repo: IDayOffRepository,
     transaction_manager: ITransactionManager,
 ):
-    use_case = ModerateDauOffUseCase(
+    use_case = ModerateDayOffUseCase(
         user_repo=user_repo,
         day_off_repo=day_off_repo,
         transaction_manager=transaction_manager,
     )
-    command = ModerateDoyOffCommand(
+    command = ModerateDayOffCommand(
         day_off_id=created_day_off.id,
         moderation_id=created_user.id,
         is_approved=True
@@ -108,12 +108,12 @@ async def test_day_off_not_found(
     day_off_repo: IDayOffRepository,
     transaction_manager: ITransactionManager,
 ):
-    use_case = ModerateDauOffUseCase(
+    use_case = ModerateDayOffUseCase(
         user_repo=user_repo,
         day_off_repo=day_off_repo,
         transaction_manager=transaction_manager,
     )
-    command = ModerateDoyOffCommand(
+    command = ModerateDayOffCommand(
         day_off_id=2,
         moderation_id=created_moderator.id,
         is_approved=True
@@ -129,12 +129,12 @@ async def test_already_moderated_day_off(
     day_off_repo: IDayOffRepository,
     transaction_manager: ITransactionManager,
 ):
-    use_case = ModerateDauOffUseCase(
+    use_case = ModerateDayOffUseCase(
         user_repo=user_repo,
         day_off_repo=day_off_repo,
         transaction_manager=transaction_manager,
     )
-    command = ModerateDoyOffCommand(
+    command = ModerateDayOffCommand(
         day_off_id=created_day_off.id,
         moderation_id=created_moderator.id,
         is_approved=True
@@ -152,12 +152,12 @@ async def test_someone_else_day_off(
     day_off_repo: IDayOffRepository,
     transaction_manager: ITransactionManager,
 ):
-    use_case = ModerateDauOffUseCase(
+    use_case = ModerateDayOffUseCase(
         user_repo=user_repo,
         day_off_repo=day_off_repo,
         transaction_manager=transaction_manager,
     )
-    command = ModerateDoyOffCommand(
+    command = ModerateDayOffCommand(
         day_off_id=created_day_off.id,
         moderation_id=created_moderator_other_department.id,
         is_approved=True
