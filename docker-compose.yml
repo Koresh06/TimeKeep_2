@@ -90,11 +90,12 @@ services:
       - traefik.http.routers.frontend.rule=Host(`24timekeep.ru`)
       - traefik.http.routers.frontend.entrypoints=websecure
       - traefik.http.routers.frontend.tls.certresolver=letsencrypt
-      - traefik.http.services.frontend.loadbalancer.server.port=3000
+      - traefik.http.services.frontend.loadbalancer.server.port=80
 
 volumes:
   postgres_data:
 
 networks:
   web:
+    name: web
     external: false
