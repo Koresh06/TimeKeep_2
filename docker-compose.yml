@@ -1,11 +1,27 @@
 services:
 
+  traefik:
+    image: traefik:v3.1
+    container_name: timekeep_traefik
+    restart: unless-stopped
+    networks:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/acme.json:/letsencrypt/acme.json
+
   db:
     image: postgres:16
     container_name: timekeep_db
     env_file:
       - ./backend/.env.db
     restart: always
+    networks:
+      - web
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -18,34 +34,55 @@ services:
     image: redis:7-alpine
     container_name: timekeep_redis
     restart: always
+    networks:
+      - web
 
-  app:
+  backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
-    container_name: timekeep_app
-    command: sh -c "alembic upgrade head && uvicorn src.presentation.app:create_app --host 0.0.0.0 --port 8000 --factory"
-    restart: always
+    container_name: timekeep_backend
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn src.presentation.app:create_app
+             --host 0.0.0.0
+             --port 8080
+             --factory"
     env_file:
       - ./backend/.env
+    restart: always
+    networks:
+      - web
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_started
-    ports:
-      - "8000:8000"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.backend.rule=Host(`24timekeep.ru`) && PathPrefix(`/api`)
+      - traefik.http.routers.backend.entrypoints=websecure
+      - traefik.http.routers.backend.tls.certresolver=letsencrypt
+      - traefik.http.services.backend.loadbalancer.server.port=8080
 
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
     container_name: timekeep_frontend
     restart: always
-    ports:
-      - "80:80"
+    networks:
+      - web
     depends_on:
-      - app
+      - backend
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.frontend.rule=Host(`24timekeep.ru`)
+      - traefik.http.routers.frontend.entrypoints=websecure
+      - traefik.http.routers.frontend.tls.certresolver=letsencrypt
+      - traefik.http.services.frontend.loadbalancer.server.port=3000
 
 volumes:
   postgres_data:
+
+networks:
+  web:
+    external: false
