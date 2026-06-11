@@ -23,6 +23,7 @@ def create_app() -> FastAPI:
         title="Timekeep API",
         description="API for timekeeping",
         version="1.0.0",
+        prefix="/api",
     )
 
     app.add_middleware(
