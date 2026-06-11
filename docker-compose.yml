@@ -17,6 +17,10 @@ services:
   db:
     image: postgres:16
     container_name: timekeep_db
+    environment:
+      POSTGRES_USER: ${APP_CONFIG__DB__USER}
+      POSTGRES_PASSWORD: ${APP_CONFIG__DB__PASSWORD}
+      POSTGRES_DB: ${APP_CONFIG__DB__NAME}
     env_file:
       - ./backend/.env
     restart: always
