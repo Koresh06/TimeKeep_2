@@ -1,4 +1,4 @@
 24timekeep.ru {
     reverse_proxy /api* timekeep_backend:8080
-    reverse_proxy * timekeep_frontend:80
+    reverse_proxy * timekeep_frontend:3000
 }

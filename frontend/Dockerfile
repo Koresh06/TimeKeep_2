@@ -1,11 +1,8 @@
-FROM node:20-alpine AS builder
+FROM node:20-alpine
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN ./node_modules/.bin/vite build
-
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
+COPY . /app/
+RUN npm install
+RUN npm run build
+RUN npm install -g serve
+EXPOSE 3000
+CMD ["serve", "-s", "dist", "-l", "3000"]
