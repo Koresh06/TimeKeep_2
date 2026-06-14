@@ -67,6 +67,9 @@ services:
   certbot:
     image: certbot/certbot
     container_name: timekeep_certbot
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     volumes:
       - certbot_www:/var/www/certbot
       - certbot_certs:/etc/letsencrypt
