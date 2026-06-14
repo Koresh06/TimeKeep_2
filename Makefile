@@ -16,10 +16,10 @@ restart:
 	docker compose restart
 
 migrate:
-	docker compose exec timekeep_backend alembic upgrade head
+	docker compose exec backend alembic upgrade head
 
 super-user:
-	docker compose exec timekeep_backend python -m src.scripts.create_super_user
+	docker compose exec backend python -m src.scripts.create_super_user
 
 shell:
-	docker compose exec timekeep_backend bash
+	docker compose exec backend bash
