@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 
 
 def include_router(app: FastAPI) -> None:
@@ -10,10 +10,13 @@ def include_router(app: FastAPI) -> None:
     from src.presentation.api.v1.day_off import router as day_off_router
     from src.presentation.api.v1.statistics import router as statistics_router
 
-    app.include_router(auth_router)
-    app.include_router(user_router)
-    app.include_router(organization_router)
-    app.include_router(department_router)
-    app.include_router(overtime_router)
-    app.include_router(day_off_router)
-    app.include_router(statistics_router)
+    api_router = APIRouter(prefix="/api")
+    api_router.include_router(auth_router)
+    api_router.include_router(user_router)
+    api_router.include_router(organization_router)
+    api_router.include_router(department_router)
+    api_router.include_router(overtime_router)
+    api_router.include_router(day_off_router)
+    api_router.include_router(statistics_router)
+
+    app.include_router(api_router)
