@@ -3,50 +3,34 @@ set -e
 
 DOMAIN="24timekeep.ru"
 EMAIL="korets2406@gmail.com"
-NGINX_CONF="./nginx/nginx.conf"
-NGINX_BACKUP="./nginx/nginx.conf.bak"
+
+echo "==> Устанавливаем certbot на хост..."
+apt-get install -y -qq certbot
 
 echo "==> Останавливаем все контейнеры..."
-docker compose down
+docker compose down || true
 
-echo "==> Создаём временный HTTP-only конфиг..."
-cp "$NGINX_CONF" "$NGINX_BACKUP"
-cat > "$NGINX_CONF" << 'EOF'
-server {
-    listen 80;
-    server_name 24timekeep.ru;
+echo "==> Создаём папку для ACME challenge..."
+mkdir -p ./certbot/www
 
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
+echo "==> Запускаем временный nginx для ACME challenge..."
+docker run --rm -d \
+    --name nginx_temp \
+    -p 80:80 \
+    -v "$(pwd)/certbot/www:/usr/share/nginx/html" \
+    nginx:alpine
 
-    location / {
-        return 200 'OK';
-        add_header Content-Type text/plain;
-    }
-}
-EOF
-
-echo "==> Запускаем nginx (только HTTP)..."
-docker compose up -d nginx
-
-echo "==> Ждём nginx..."
-sleep 5
+sleep 3
 
 echo "==> Получаем сертификат Let's Encrypt..."
-docker compose run --rm certbot certonly \
-  --webroot \
-  -w /var/www/certbot \
-  --email "$EMAIL" \
-  -d "$DOMAIN" \
-  --agree-tos \
-  --non-interactive
+certbot certonly --webroot \
+    --webroot-path="$(pwd)/certbot/www" \
+    -d "$DOMAIN" \
+    --email "$EMAIL" \
+    --agree-tos \
+    --non-interactive
 
-echo "==> Восстанавливаем HTTPS конфиг..."
-mv "$NGINX_BACKUP" "$NGINX_CONF"
-
-echo "==> Перезагружаем nginx с HTTPS конфигом..."
-docker compose exec nginx nginx -s reload
+docker stop nginx_temp || true
 
 echo "==> Запускаем все сервисы..."
 docker compose up -d
